@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QQuickWidget *map = ui->centralwidget->findChild<QQuickWidget*>("mapWidget");
+    map->setSource(QUrl(QStringLiteral("qrc:/MapQuickWidget.qml")));
 }
 
 MainWindow::~MainWindow()

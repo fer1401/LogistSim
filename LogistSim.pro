@@ -1,8 +1,12 @@
-QT       += core gui
+QT       += core gui quickwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
+
+DSG = /home/jesus/Documentos/DeSiGNAR
+
+INCLUDEPATH += $${DSG}/include ../
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -45,4 +49,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 # Link libraries
-LIBS += -lprotobuf -lbz2 -lexpat -lz -lgdal
+LIBS += -lprotobuf -lbz2 -lexpat -lz -lgdal -L$${DSG}/lib -lDesignar -lboost_iostreams
+
+RESOURCES += \
+    res.qrc
