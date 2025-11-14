@@ -19,14 +19,16 @@ SOURCES += \
     Source/Nodeinfo.cpp \
     Source/Truck.cpp \
     Source/main.cpp \
-    Source/mainwindow.cpp
+    Source/mainwindow.cpp \
+    Source/Product.cpp
 
 HEADERS += \
     Include/Arcinfo.h \
     Include/City.h \
     Include/Nodeinfo.h \
     Include/Truck.h \
-    Include/mainwindow.h
+    Include/mainwindow.h \
+    Include/Product.h
 
 FORMS += \
     Forms/mainwindow.ui
