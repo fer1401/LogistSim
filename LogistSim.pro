@@ -20,7 +20,8 @@ SOURCES += \
     Source/Truck.cpp \
     Source/main.cpp \
     Source/mainwindow.cpp \
-    Source/Product.cpp
+    Source/Product.cpp \
+    Source/Order.cpp \
 
 HEADERS += \
     Include/Arcinfo.h \
@@ -28,7 +29,8 @@ HEADERS += \
     Include/Nodeinfo.h \
     Include/Truck.h \
     Include/mainwindow.h \
-    Include/Product.h
+    Include/Product.h \
+    Include/Order.h \
 
 FORMS += \
     Forms/mainwindow.ui
