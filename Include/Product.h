@@ -20,7 +20,7 @@ public:
 
     void setId(long long newId);
     void setName(const std::string& newName);
-    void Product::setDescription(const std::string& newDescription)
+    void setDescription(const std::string& newDescription);
 };
 
 #endif // PRODUCT_H
