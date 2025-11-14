@@ -22,6 +22,7 @@ SOURCES += \
     Source/mainwindow.cpp \
     Source/Product.cpp \
     Source/Order.cpp \
+    Source/Inventory.cpp \
 
 HEADERS += \
     Include/Arcinfo.h \
@@ -31,6 +32,7 @@ HEADERS += \
     Include/mainwindow.h \
     Include/Product.h \
     Include/Order.h \
+    Include/Inventory.h \
 
 FORMS += \
     Forms/mainwindow.ui
