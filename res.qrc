@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>MapQuickWidget.qml</file>
+        <file>map.osm</file>
     </qresource>
 </RCC>

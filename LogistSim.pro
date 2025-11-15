@@ -18,27 +18,29 @@ INCLUDEPATH += /usr/include/
 
 
 SOURCES += \
-    Source/Arcinfo.cpp \
     Source/City.cpp \
-    Source/Nodeinfo.cpp \
+    Source/CountHandler.cpp \
+    Source/MapPoint.cpp \
+    Source/Street.cpp \
     Source/Truck.cpp \
     Source/main.cpp \
     Source/mainwindow.cpp \
     Source/Product.cpp \
     Source/Order.cpp \
     Source/Inventory.cpp \
-    Source/Warehouse.cpp \
+    Source/Warehouse.cpp
 
 HEADERS += \
-    Include/Arcinfo.h \
     Include/City.h \
-    Include/Nodeinfo.h \
+    Include/CountHandler.h \
+    Include/MapPoint.h \
+    Include/Street.h \
     Include/Truck.h \
     Include/mainwindow.h \
     Include/Product.h \
     Include/Order.h \
     Include/Inventory.h \
-    Include/Warehouse.h \
+    Include/Warehouse.h
 
 FORMS += \
     Forms/mainwindow.ui
