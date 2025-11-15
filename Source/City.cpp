@@ -1,11 +1,26 @@
 #include "City.h"
 #include <iostream>
+#include <QTemporaryDir>
 
 City::City()
 {
     try
     {
-        const osmium::io::File input_file{"qrc:/map.osm"};
+        QTemporaryDir tempDir;
+        if (!tempDir.isValid())
+        {
+            qDebug() << "Error: No se pudo crear el directorio temporal.";
+        }
+
+        const QString resourcePath = ":/map.osm";
+        const QString tempFilePath = tempDir.path() + "/map.osm";
+
+        if (QFile::copy(resourcePath, tempFilePath))
+        {
+            qDebug() << "Archivo de recurso copiado con éxito.";
+        }
+
+        const osmium::io::File input_file{tempFilePath.toStdString()};
         osmium::io::Reader reader{input_file};
 
         // Create an instance of our own CountHandler and push the data from the
