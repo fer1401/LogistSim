@@ -44,6 +44,7 @@ struct CountHandler : public osmium::handler::Handler
 
         auto i = way.nodes().begin();
         auto j = i + 1;
+
         while(i != way.nodes().end() && j != way.nodes().end())
         {
             auto src = g.filter_nodes([&i](const auto &node) { return node->get_info().getId() == i->ref(); }).get_first();
@@ -56,10 +57,16 @@ struct CountHandler : public osmium::handler::Handler
                 if (std::strcmp(oneway_value, "yes"))
                 {
                     g.insert_arc(src, tgt, street);
+                    ++i;
+                    ++j;
+                    continue;
                 }
                 else if (std::strcmp(oneway_value, "-1"))
                 {
                     g.insert_arc(tgt, src, street);
+                    ++i;
+                    ++j;
+                    continue;
                 }
             }
 
