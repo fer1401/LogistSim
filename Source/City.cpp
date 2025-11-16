@@ -45,10 +45,22 @@ City::City()
         const osmium::MemoryUsage memory;
 
         std::cout << "\nMemory used: " << memory.peak() << " MBytes\n";
+
+        graph = handler.g;
     }
     catch (const std::exception &e)
     {
         // All exceptions used by the Osmium library derive from std::exception.
         std::cerr << e.what() << '\n';
     }
+}
+
+const Designar::Digraph<MapPoint, Street> &City::getGraph() const
+{
+    return graph;
+}
+
+void City::setGraph(Designar::Digraph<MapPoint, Street> g)
+{
+    graph = g;
 }

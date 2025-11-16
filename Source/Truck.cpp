@@ -2,7 +2,7 @@
 
 Truck::Truck(QObject *parent)
     : QObject{parent},
-    m_coordinate(8.5945770,-71.1598334)// Coordenada inicial
+    m_coordinate(8.5945770, -71.1598334)// Coordenada inicial
 {}
 
 QGeoCoordinate Truck::getCoordinate()
@@ -24,6 +24,6 @@ void Truck::setCoordinate(const QGeoCoordinate &newCoordinate)
 
 void Truck::updatePosition(double longitude, double latitude)
 {
-    QGeoCoordinate newCoord(longitude, latitude);
+    QGeoCoordinate newCoord(latitude, longitude);
     setCoordinate(newCoord);
 }

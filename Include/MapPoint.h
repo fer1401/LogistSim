@@ -10,6 +10,7 @@ private:
     std::string name;
 
 public:
+    MapPoint();
     MapPoint(long long nodeId, double lat, double lon, const std::string& nodeName = "");
 
     long long getId() const;

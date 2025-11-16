@@ -1,5 +1,8 @@
 #include "MapPoint.h"
 
+MapPoint::MapPoint()
+{}
+
 MapPoint::MapPoint(long long nodeId, double lat, double lon, const std::string& nodeName)
     : id(nodeId), latitude(lat), longitude(lon), name(nodeName) {}
 

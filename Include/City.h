@@ -13,6 +13,9 @@ private:
 public:
 
     City();
+
+    const Designar::Digraph<MapPoint, Street> &getGraph() const;
+    void setGraph(Designar::Digraph<MapPoint, Street> g);
 };
 
 #endif // CITY_H

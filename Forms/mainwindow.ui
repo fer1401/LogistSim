@@ -20,11 +20,24 @@
       <x>29</x>
       <y>19</y>
       <width>731</width>
-      <height>521</height>
+      <height>451</height>
      </rect>
     </property>
     <property name="resizeMode">
      <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>500</y>
+      <width>84</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Mover camión</string>
     </property>
    </widget>
   </widget>
