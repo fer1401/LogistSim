@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>MapQuickWidget.qml</file>
+        <file>map.osm</file>
+        <file>camion.png</file>
+    </qresource>
+</RCC>

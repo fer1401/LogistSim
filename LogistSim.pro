@@ -1,8 +1,12 @@
-QT       += core gui
+QT       += core gui quickwidgets positioning location
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
+
+DSG = /home/jesus/Documentos/DeSiGNAR
+
+INCLUDEPATH += $${DSG}/include ../
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -14,27 +18,29 @@ INCLUDEPATH += /usr/include/
 
 
 SOURCES += \
-    Source/Arcinfo.cpp \
     Source/City.cpp \
-    Source/Nodeinfo.cpp \
+    Source/CountHandler.cpp \
+    Source/MapPoint.cpp \
+    Source/Street.cpp \
     Source/Truck.cpp \
     Source/main.cpp \
     Source/mainwindow.cpp \
     Source/Product.cpp \
     Source/Order.cpp \
     Source/Inventory.cpp \
-    Source/Warehouse.cpp \
+    Source/Warehouse.cpp
 
 HEADERS += \
-    Include/Arcinfo.h \
     Include/City.h \
-    Include/Nodeinfo.h \
+    Include/CountHandler.h \
+    Include/MapPoint.h \
+    Include/Street.h \
     Include/Truck.h \
     Include/mainwindow.h \
     Include/Product.h \
     Include/Order.h \
     Include/Inventory.h \
-    Include/Warehouse.h \
+    Include/Warehouse.h
 
 FORMS += \
     Forms/mainwindow.ui
@@ -45,4 +51,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 # Link libraries
-LIBS += -lprotobuf -lbz2 -lexpat -lz -lgdal
+LIBS += -lprotobuf -lbz2 -lexpat -lz -lgdal -L$${DSG}/lib -lDesignar -lboost_iostreams
+
+RESOURCES += \
+    res.qrc
