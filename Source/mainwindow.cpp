@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QQmlContext>
 #include <graphalgorithms.hpp>
+#include "Inventory.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,6 +12,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     QQuickWidget *map = ui->centralwidget->findChild<QQuickWidget*>("mapWidget");
     map->rootContext()->setContextProperty("exampleTruck", exampleTruck);
+
+    Inventory initialInventory;
+
+    warehouseA = new Warehouse(8.60000, -71.16500, 10, initialInventory, this);
+
+    warehouseB = new Warehouse(8.58000, -71.14000, 5, initialInventory, this);
+
+    map->rootContext()->setContextProperty("warehouseA", warehouseA);
+    map->rootContext()->setContextProperty("warehouseB", warehouseB);
+
     map->setSource(QUrl(QStringLiteral("qrc:/MapQuickWidget.qml")));
     city = City();
 
@@ -33,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete exampleTruck;
+    delete warehouseA;
+    delete warehouseB;
     delete ui;
 }
 

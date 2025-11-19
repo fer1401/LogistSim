@@ -2,8 +2,13 @@
 #include <iostream>
 #include <algorithm> // For std::remove_if or vector manipulation
 
-Warehouse::Warehouse(int totalEmployees, const Inventory& initialInventory)
-    : totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory) {}
+Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, const Inventory& initialInventory, QObject *parent)
+    : QObject{parent}, m_coordinate(latitude, longitude), totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory) {}
+
+QGeoCoordinate Warehouse::getCoordinate() const
+{
+    return m_coordinate;
+}
 
 int Warehouse::getTotalEmployees() const {
     return totalEmployees;

@@ -1,12 +1,17 @@
 #ifndef WAREHOUSE_H
 #define WAREHOUSE_H
 
+#include <QObject>
+#include <QGeoCoordinate>
 #include <vector>
 #include "Inventory.h"
 #include "Order.h"
 
-class Warehouse
+class Warehouse : public QObject
 {
+    Q_OBJECT
+
+    Q_PROPERTY(QGeoCoordinate coordinate READ getCoordinate CONSTANT)
 private:
     int totalEmployees;
     int busyEmployees;
@@ -14,8 +19,12 @@ private:
     std::vector<Order> pendingOrders;
     std::vector<Order> readyToShipOrders;
 
+    QGeoCoordinate m_coordinate;
+
 public:
-    Warehouse(int totalEmployees, const Inventory& initialInventory);
+    explicit Warehouse(double latitude, double longitude, int totalEmployees, const Inventory& initialInventory, QObject *parent = nullptr);
+
+    QGeoCoordinate getCoordinate() const;
 
     int getTotalEmployees() const;
     int getBusyEmployees() const;
