@@ -3,5 +3,6 @@
         <file>MapQuickWidget.qml</file>
         <file>map.osm</file>
         <file>camion.png</file>
+        <file>almacen.png</file>
     </qresource>
 </RCC>
