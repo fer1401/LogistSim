@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "City.h"
 #include "Truck.h"
+#include "Warehouse.h"
+#include "Inventory.h"
 #include "array.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -27,6 +29,10 @@ private:
     Ui::MainWindow *ui;
     City city;
     Truck *exampleTruck;
+
+    Warehouse *warehouseA;
+    Warehouse *warehouseB;
+
     Designar::DynArray<MapPoint> examplePath;
     Designar::nat_t pathPosition;
 };

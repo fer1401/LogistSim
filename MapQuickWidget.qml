@@ -27,6 +27,30 @@ Item
             }
         }
 
+        MapQuickItem
+        {
+            id: warehouseItemA
+            coordinate: warehouseA.coordinate
+            width: 50
+            height: 50
+            sourceItem: Image {source: "qrc:/almacen.png"
+                width: 50
+                height: 50
+            }
+        }
+
+        MapQuickItem
+        {
+            id: warehouseItemB
+            coordinate: warehouseB.coordinate
+            width: 50
+            height: 50
+            sourceItem: Image {source: "qrc:/almacen.png"
+                width: 50
+                height: 50
+            }
+        }
+
         DragHandler
         {
             id: mapDragHandler
