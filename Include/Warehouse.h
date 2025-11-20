@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QGeoCoordinate>
 #include <vector>
+#include <queue>
 #include "Inventory.h"
 #include "Order.h"
 #include "Truck.h"
@@ -21,6 +22,7 @@ private:
     std::vector<Order> pendingOrders;
     std::vector<Order> readyToShipOrders;
     std::vector<std::unique_ptr<Truck>> dockedTrucks;
+    std::queue<Designar::Path<CityGraph>> truckRoutes;
 
     QGeoCoordinate m_coordinate;
 
@@ -40,8 +42,8 @@ public:
 
     void addOrder(const Order& order);
     bool fulfillNextOrder();
-    void shipNextOrder();
-    void shipOrders();
+    void shipOrders(CityGraph& city);
+    void assignRoutes();
     std::vector<Designar::Path<CityGraph>> planTruckRoutes(CityGraph& city);
 };
 

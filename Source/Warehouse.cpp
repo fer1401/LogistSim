@@ -91,14 +91,6 @@ bool Warehouse::fulfillNextOrder()
     }
 }
 
-void Warehouse::shipNextOrder()
-{
-    if (!readyToShipOrders.empty())
-    {
-        readyToShipOrders.erase(readyToShipOrders.begin());
-    }
-}
-
 // Collect active routes and convert to Designar::Path placeholders
 // Define distance (edge cost) and heuristic for A*
 struct CityEdgeDistance
@@ -162,6 +154,30 @@ struct Route
     bool active = true;
 };
 
+void Warehouse::shipOrders(CityGraph &city)
+{
+    auto routes = planTruckRoutes(city);
+    for (const auto &route : routes)
+    {
+        truckRoutes.push(route);
+    }
+    assignRoutes();
+}
+
+void Warehouse::assignRoutes()
+{
+    for (auto &truckPtr : dockedTrucks)
+    {
+        Truck *truck = truckPtr.get();
+        if (!truck->isShipping() && !truckRoutes.empty())
+        {
+            Designar::Path<CityGraph> route = truckRoutes.front();
+            truckRoutes.pop();
+            truck->assignRoute(route);
+        }
+    }
+}
+
 std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &city)
 {
     // Clark-Wright Savings heuristic implementation
@@ -175,7 +191,7 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
 
     const size_t n = pendingOrders.size();
 
-    // Distances from depot (warehouse) to each customer and between customers
+    // Distances from warehouse (warehouse) to each customer and between customers
     std::vector<double> d0(n);
     std::vector<std::vector<double>> dij(n, std::vector<double>(n, 0.0));
 
@@ -305,16 +321,16 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
         if (!r.active)
             continue;
 
-        // Build a full path starting at depot
-        CityGraph::Node *depotNode = find_nearest_node(city, m_coordinate.latitude(), m_coordinate.longitude());
-        if (!depotNode)
-            continue; // can't route without depot node
+        // Build a full path starting at warehouse
+            CityGraph::Node *warehouseNode = find_nearest_node(city, m_coordinate.latitude(), m_coordinate.longitude());
+        if (!warehouseNode)
+            continue; // can't route without warehouse node
 
         Designar::Path<CityGraph> fullPath;
         // insert node pointers
-        fullPath.insert(depotNode);
+        fullPath.insert(warehouseNode);
 
-        CityGraph::Node *currentNode = depotNode;
+        CityGraph::Node *currentNode = warehouseNode;
         bool failed = false;
 
         for (auto orderIdx : r.orders)
@@ -341,10 +357,10 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
 
         if (!failed)
         {
-            auto backSeg = astar_solver.search_min_path(city, currentNode, depotNode);
+            auto backSeg = astar_solver.search_min_path(city, currentNode, warehouseNode);
             if (backSeg.size() > 0)
             {
-                fullPath.insert(depotNode);
+                fullPath.insert(warehouseNode);
             }
             resultPaths.push_back(std::move(fullPath));
         }

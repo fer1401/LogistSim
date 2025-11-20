@@ -60,6 +60,11 @@ const Designar::Digraph<MapPoint, Street> &City::getGraph() const
     return graph;
 }
 
+Designar::Digraph<MapPoint, Street> &City::getGraph()
+{
+    return graph;
+}
+
 void City::setGraph(Designar::Digraph<MapPoint, Street> g)
 {
     graph = g;

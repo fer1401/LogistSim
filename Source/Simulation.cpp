@@ -72,9 +72,6 @@ void Simulation::run()
         {
             warehouse->fulfillNextOrder();
         }
-        while (!warehouse->getReadyToShipOrders().empty())
-        {
-            warehouse->shipNextOrder();
-        }
+        warehouse->shipOrders(city.getGraph());
     }
 }

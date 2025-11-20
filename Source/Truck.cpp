@@ -16,6 +16,28 @@ int Truck::getId() const
     return id;
 }
 
+Designar::Path<CityGraph> Truck::getAssignedRoute() const
+{
+    return assignedRoute;
+}
+
+bool Truck::isShipping() const
+{
+    return shippingState;
+}
+
+void Truck::assignRoute(const Designar::Path<CityGraph> &newRoute)
+{
+    assignedRoute = newRoute;
+    shippingState = true;
+}
+
+void Truck::clearRoute()
+{
+    assignedRoute = Designar::Path<CityGraph>();
+    shippingState = false;
+}
+
 void Truck::setId(int newId)
 {
     id = newId;
