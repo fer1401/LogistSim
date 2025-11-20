@@ -1,13 +1,24 @@
 #include "Truck.h"
 
-Truck::Truck(QObject *parent)
+Truck::Truck(int id, QObject *parent)
     : QObject{parent},
-    m_coordinate(8.5945770, -71.1598334)// Coordenada inicial
+    m_coordinate(8.5945770, -71.1598334), // Coordenada inicial
+    id(id)
 {}
 
 QGeoCoordinate Truck::getCoordinate()
 {
     return m_coordinate;
+}
+
+int Truck::getId() const
+{
+    return id;
+}
+
+void Truck::setId(int newId)
+{
+    id = newId;
 }
 
 void Truck::setCoordinate(const QGeoCoordinate &newCoordinate)

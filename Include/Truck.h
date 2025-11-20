@@ -10,9 +10,13 @@ class Truck : public QObject
     Q_PROPERTY(QGeoCoordinate coordinate READ getCoordinate WRITE setCoordinate NOTIFY coordinateChanged FINAL)
 
 public:
-    explicit Truck(QObject *parent = nullptr);
+    explicit Truck(int id, QObject *parent = nullptr);
 
     QGeoCoordinate getCoordinate();
+
+    int getId() const;
+
+    void setId(int newId);
 
     // Función que la simulación en C++ llamará para mover el camión
     Q_INVOKABLE void updatePosition(double longitude, double latitude);
@@ -26,6 +30,7 @@ signals:
 
 private:
     QGeoCoordinate m_coordinate;
+    int id;
 };
 
 #endif // TRUCK_H

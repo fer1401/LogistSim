@@ -6,6 +6,7 @@
 #include <vector>
 #include "Inventory.h"
 #include "Order.h"
+#include "Truck.h"
 
 class Warehouse : public QObject
 {
@@ -18,6 +19,7 @@ private:
     Inventory inventory;
     std::vector<Order> pendingOrders;
     std::vector<Order> readyToShipOrders;
+    std::vector<std::unique_ptr<Truck>> dockedTrucks;
 
     QGeoCoordinate m_coordinate;
 
@@ -29,8 +31,10 @@ public:
     int getTotalEmployees() const;
     int getBusyEmployees() const;
     int getAvailableEmployees() const;
+    const std::vector<std::unique_ptr<Truck>>& getDockedTrucks();
     const std::vector<Order>& getPendingOrders() const;
     const std::vector<Order>& getReadyToShipOrders() const;
+    void dockTruck(std::unique_ptr<Truck> truck);
     const Inventory& getInventory() const;
 
     void addOrder(const Order& order);

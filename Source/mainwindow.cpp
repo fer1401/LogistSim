@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    exampleTruck = new Truck(this);
+    exampleTruck = new Truck(0, this);
     ui->setupUi(this);
     QQuickWidget *map = ui->centralwidget->findChild<QQuickWidget*>("mapWidget");
     map->rootContext()->setContextProperty("exampleTruck", exampleTruck);

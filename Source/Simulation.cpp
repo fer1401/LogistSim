@@ -18,7 +18,6 @@ Simulation::Simulation()
     productCatalog.emplace_back(Product(1, "Laptop", "HP Spectre x360"));
     productCatalog.emplace_back(Product(2, "Smartphone", "Samsung Galaxy S21"));
     productCatalog.emplace_back(Product(3, "Tablet", "iPad Pro"));
-    
 }
 
 void Simulation::generateOrder()

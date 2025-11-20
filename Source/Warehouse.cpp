@@ -30,6 +30,10 @@ const std::vector<Order>& Warehouse::getReadyToShipOrders() const {
     return readyToShipOrders;
 }
 
+void Warehouse::dockTruck(std::unique_ptr<Truck> truck) {
+    dockedTrucks.push_back(std::move(truck));
+}
+
 const Inventory& Warehouse::getInventory() const {
     return inventory;
 }
