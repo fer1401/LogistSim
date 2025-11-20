@@ -7,6 +7,7 @@
 #include "Inventory.h"
 #include "Order.h"
 #include "Truck.h"
+#include "City.h"
 
 class Warehouse : public QObject
 {
@@ -40,6 +41,8 @@ public:
     void addOrder(const Order& order);
     bool fulfillNextOrder();
     void shipNextOrder();
+    void shipOrders();
+    std::vector<Designar::Path<CityGraph>> planTruckRoutes(CityGraph& city);
 };
 
 #endif // WAREHOUSE_H
