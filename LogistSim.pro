@@ -28,7 +28,8 @@ SOURCES += \
     Source/Product.cpp \
     Source/Order.cpp \
     Source/Inventory.cpp \
-    Source/Warehouse.cpp
+    Source/Warehouse.cpp \
+    Source/Welcomedialog.cpp \
 
 HEADERS += \
     Include/City.h \
@@ -40,10 +41,12 @@ HEADERS += \
     Include/Product.h \
     Include/Order.h \
     Include/Inventory.h \
-    Include/Warehouse.h
+    Include/Warehouse.h \
+    Include/Welcomedialog.h \
 
 FORMS += \
-    Forms/mainwindow.ui
+    Forms/mainwindow.ui \
+    Forms/welcomedialog.ui \
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
