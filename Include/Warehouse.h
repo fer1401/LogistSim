@@ -21,23 +21,28 @@ private:
     Inventory inventory;
     std::vector<Order> pendingOrders;
     std::vector<Order> readyToShipOrders;
-    std::vector<std::unique_ptr<Truck>> dockedTrucks;
+    QList<Truck*> dockedTrucks;
     std::queue<Designar::Path<CityGraph>> truckRoutes;
 
     QGeoCoordinate m_coordinate;
 
+signals:
+    void trucksChanged();
+
 public:
     explicit Warehouse(double latitude, double longitude, int totalEmployees, const Inventory& initialInventory, QObject *parent = nullptr);
+    ~Warehouse();
 
     QGeoCoordinate getCoordinate() const;
+    QList<QObject*> getVisualTrucks() const;
 
     int getTotalEmployees() const;
     int getBusyEmployees() const;
     int getAvailableEmployees() const;
-    const std::vector<std::unique_ptr<Truck>>& getDockedTrucks();
+    const QList<Truck*> getDockedTrucks();
     const std::vector<Order>& getPendingOrders() const;
     const std::vector<Order>& getReadyToShipOrders() const;
-    void dockTruck(std::unique_ptr<Truck> truck);
+    void dockTruck(Truck *truck);
     const Inventory& getInventory() const;
 
     void addOrder(const Order& order);

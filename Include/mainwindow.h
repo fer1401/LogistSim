@@ -23,6 +23,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Simulation simulation;
+    Simulation *simulation;
 };
 #endif // MAINWINDOW_H

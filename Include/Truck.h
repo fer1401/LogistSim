@@ -11,7 +11,7 @@ class Truck : public QObject
     Q_PROPERTY(QGeoCoordinate coordinate READ getCoordinate WRITE setCoordinate NOTIFY coordinateChanged FINAL)
 
 public:
-    explicit Truck(int id, QObject *parent = nullptr);
+    explicit Truck(int id, QGeoCoordinate initialCoord, QObject *parent = nullptr);
 
     QGeoCoordinate getCoordinate();
 

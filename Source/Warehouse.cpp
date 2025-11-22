@@ -1,17 +1,29 @@
 #include "Warehouse.h"
-#include <iostream>
 #include <algorithm> // For std::remove_if or vector manipulation
 #include <cmath>
-#include <map>
 #include <tuple>
 #include <graphalgorithms.hpp>
 
 Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, const Inventory &initialInventory, QObject *parent)
-    : QObject{parent}, m_coordinate(latitude, longitude), totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory) {}
+    : QObject{parent}, m_coordinate(latitude, longitude), totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory)
+{
+    dockedTrucks.append(new Truck(1, m_coordinate, this));
+    dockedTrucks.append(new Truck(2, m_coordinate, this));
+}
+
+Warehouse::~Warehouse()
+{
+    qDeleteAll(dockedTrucks);
+}
 
 QGeoCoordinate Warehouse::getCoordinate() const
 {
     return m_coordinate;
+}
+
+QList<QObject *> Warehouse::getVisualTrucks() const
+{
+    return reinterpret_cast<const QList<QObject*>&>(dockedTrucks);
 }
 
 int Warehouse::getTotalEmployees() const
@@ -29,6 +41,11 @@ int Warehouse::getAvailableEmployees() const
     return totalEmployees - busyEmployees;
 }
 
+const QList<Truck *> Warehouse::getDockedTrucks()
+{
+    return dockedTrucks;
+}
+
 const std::vector<Order> &Warehouse::getPendingOrders() const
 {
     return pendingOrders;
@@ -39,9 +56,9 @@ const std::vector<Order> &Warehouse::getReadyToShipOrders() const
     return readyToShipOrders;
 }
 
-void Warehouse::dockTruck(std::unique_ptr<Truck> truck)
+void Warehouse::dockTruck(Truck *truck)
 {
-    dockedTrucks.push_back(std::move(truck));
+    dockedTrucks.append(truck);
 }
 
 const Inventory &Warehouse::getInventory() const
@@ -168,7 +185,7 @@ void Warehouse::assignRoutes()
 {
     for (auto &truckPtr : dockedTrucks)
     {
-        Truck *truck = truckPtr.get();
+        Truck *truck = truckPtr;
         if (!truck->isShipping() && !truckRoutes.empty())
         {
             Designar::Path<CityGraph> route = truckRoutes.front();

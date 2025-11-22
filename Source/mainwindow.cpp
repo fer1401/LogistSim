@@ -5,18 +5,20 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow), simulation(Simulation(this))
+    , ui(new Ui::MainWindow), simulation(new Simulation(this))
 {
     ui->setupUi(this);
     QQuickWidget *map = ui->centralwidget->findChild<QQuickWidget*>("mapWidget");
 
+    map->rootContext()->setContextProperty("simulation", simulation);
     map->setSource(QUrl(QStringLiteral("qrc:/MapQuickWidget.qml")));
 
-    simulation.startClock();
+    simulation->startClock();
 }
 
 MainWindow::~MainWindow()
 {
+    delete simulation;
     delete ui;
 }
 

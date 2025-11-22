@@ -13,8 +13,11 @@ Simulation::Simulation(QObject *parent) : QObject{parent}
     initialInventory.addStock(2, 100);
     initialInventory.addStock(3, 75);
 
-    warehouses.push_back(std::make_unique<Warehouse>(8.60000, -71.16500, 10, initialInventory, nullptr));
-    warehouses.push_back(std::make_unique<Warehouse>(8.58000, -71.14000, 5, initialInventory, nullptr));
+    Warehouse *warehouseA = new Warehouse(8.60000, -71.16500, 10, initialInventory, this);
+    Warehouse *warehouseB = new Warehouse(8.58000, -71.14000, 5, initialInventory, this);
+
+    warehouses.append(warehouseA);
+    warehouses.append(warehouseB);
     
     // Initialize products
     productCatalog.emplace_back(Product(1, "Laptop", "HP Spectre x360"));
@@ -24,10 +27,13 @@ Simulation::Simulation(QObject *parent) : QObject{parent}
     simulationClock = new QTimer(this);
     QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
     simulationClock->setInterval(simulationClockInterval);
+
+    emit warehousesChanged();
 }
 
 Simulation::~Simulation()
 {
+    qDeleteAll(warehouses);
     delete simulationClock;
 }
 
@@ -100,6 +106,26 @@ void Simulation::startClock()
 void Simulation::stopClock()
 {
     simulationClock->stop();
+}
+
+QList<QObject *> Simulation::getVisualWarehouses()
+{
+    return reinterpret_cast<const QList<QObject*>&>(warehouses);
+}
+
+QList<QObject *> Simulation::getVisualTrucks()
+{
+    QList<QObject*> result;
+
+    for (const auto &warehouse : warehouses)
+    {
+        for (const auto &truck : warehouse->getVisualTrucks())
+        {
+            result.append(truck);
+        }
+    }
+
+    return result;
 }
 
 void Simulation::simulationTick()

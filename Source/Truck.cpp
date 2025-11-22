@@ -1,8 +1,8 @@
 #include "Truck.h"
 
-Truck::Truck(int id, QObject *parent)
+Truck::Truck(int id, QGeoCoordinate initialCoord, QObject *parent)
     : QObject{parent},
-    m_coordinate(8.5945770, -71.1598334), // Coordenada inicial
+    m_coordinate(initialCoord), // Coordenada inicial
     id(id)
 {}
 

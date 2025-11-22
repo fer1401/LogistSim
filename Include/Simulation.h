@@ -5,13 +5,17 @@
 #include <Order.h>
 #include <Product.h>
 #include <Warehouse.h>
-#include <memory>
 #include <QTimer>
 #include <QObject>
+#include <QList>
 
 class Simulation : public QObject
 {
     Q_OBJECT
+
+    Q_PROPERTY(QList<QObject*> warehouses READ getVisualWarehouses NOTIFY warehousesChanged FINAL)
+
+    Q_PROPERTY(QList<QObject*> trucks READ getVisualTrucks NOTIFY trucksChanged FINAL)
 
 public:
     explicit Simulation(QObject *parent = nullptr);
@@ -21,14 +25,22 @@ public:
     QTimer *getSimulationClock();
     void startClock();
     void stopClock();
+    QList<QObject*> getVisualWarehouses();
+    QList<QObject*> getVisualTrucks();
 
 private slots:
 
     void simulationTick();
 
+signals:
+
+    void warehousesChanged();
+    void trucksChanged();
+
 private:
     City city;
-    std::vector<std::unique_ptr<Warehouse>> warehouses;
+    QList<Warehouse*> warehouses;
+    QList<QObject*> visualTrucks;
     std::vector<Order> incomingOrders;
     std::vector<Product> productCatalog;
     QTimer *simulationClock;
