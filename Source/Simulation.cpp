@@ -1,7 +1,9 @@
 #include "Simulation.h"
 #include "Inventory.h"
 
-Simulation::Simulation()
+const int simulationClockInterval = 200;
+
+Simulation::Simulation(QObject *parent) : QObject{parent}
 {
     // Initialize city and warehouses
     city = City();
@@ -18,6 +20,15 @@ Simulation::Simulation()
     productCatalog.emplace_back(Product(1, "Laptop", "HP Spectre x360"));
     productCatalog.emplace_back(Product(2, "Smartphone", "Samsung Galaxy S21"));
     productCatalog.emplace_back(Product(3, "Tablet", "iPad Pro"));
+
+    simulationClock = new QTimer(this);
+    QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
+    simulationClock->setInterval(simulationClockInterval);
+}
+
+Simulation::~Simulation()
+{
+    delete simulationClock;
 }
 
 void Simulation::generateOrder()
@@ -74,4 +85,24 @@ void Simulation::run()
         }
         warehouse->shipOrders(city.getGraph());
     }
+}
+
+QTimer *Simulation::getSimulationClock()
+{
+    return simulationClock;
+}
+
+void Simulation::startClock()
+{
+    simulationClock->start();
+}
+
+void Simulation::stopClock()
+{
+    simulationClock->stop();
+}
+
+void Simulation::simulationTick()
+{
+    qDebug()<<"This is the simulation clock event";
 }

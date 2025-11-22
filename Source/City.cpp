@@ -33,18 +33,18 @@ City::City()
         reader.close();
 
         // Print graph
-        for(const auto& arc : handler.g.arcs())
-        {
-            std::cout << arc->get_info().getId() << ": " << arc->get_src_node()->get_info().getId() << " -> " << arc->get_tgt_node()->get_info().getId() << "\n";
-        }
+        //for(const auto& arc : handler.g.arcs())
+        //{
+            //std::cout << arc->get_info().getId() << ": " << arc->get_src_node()->get_info().getId() << " -> " << arc->get_tgt_node()->get_info().getId() << "\n";
+        //}
 
         // Because of the huge amount of OSM data, some Osmium-based programs
         // (though not this one) can use huge amounts of data. So checking actual
         // memore usage is often useful and can be done easily with this class.
         // (Currently only works on Linux, not macOS and Windows.)
-        const osmium::MemoryUsage memory;
+        //const osmium::MemoryUsage memory;
 
-        std::cout << "\nMemory used: " << memory.peak() << " MBytes\n";
+        //std::cout << "\nMemory used: " << memory.peak() << " MBytes\n";
 
         graph = handler.g;
     }

@@ -2,11 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "City.h"
-#include "Truck.h"
-#include "Warehouse.h"
-#include "Inventory.h"
-#include "array.hpp"
+#include "Simulation.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,13 +23,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    City city;
-    Truck *exampleTruck;
-
-    Warehouse *warehouseA;
-    Warehouse *warehouseB;
-
-    Designar::DynArray<MapPoint> examplePath;
-    Designar::nat_t pathPosition;
+    Simulation simulation;
 };
 #endif // MAINWINDOW_H
