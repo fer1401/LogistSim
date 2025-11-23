@@ -47,6 +47,7 @@ public:
 
     void addOrder(const Order& order);
     bool fulfillNextOrder();
+    void fullfillAllPossibleOrders();
     void shipOrders(CityGraph& city);
     void assignRoutes();
     std::vector<Designar::Path<CityGraph>> planTruckRoutes(CityGraph& city);

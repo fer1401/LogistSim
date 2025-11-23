@@ -92,10 +92,7 @@ void Simulation::run()
     // Update warehouses
     for (auto& warehouse : warehouses)
     {
-        while (warehouse->getAvailableEmployees() > 0 && !warehouse->getPendingOrders().empty())
-        {
-            warehouse->fulfillNextOrder();
-        }
+        warehouse->fullfillAllPossibleOrders();
         warehouse->shipOrders(city.getGraph());
     }
 }

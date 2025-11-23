@@ -107,6 +107,15 @@ bool Warehouse::fulfillNextOrder()
     }
 }
 
+void Warehouse::fullfillAllPossibleOrders()
+{
+    bool possibleToFulfill = true;
+    while (possibleToFulfill)
+    {
+        possibleToFulfill = fulfillNextOrder();
+    }
+}
+
 // Collect active routes and convert to Designar::Path placeholders
 // Define distance (edge cost) and heuristic for A*
 struct CityEdgeDistance
