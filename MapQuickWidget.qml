@@ -15,18 +15,6 @@ Item
         center: QtPositioning.coordinate(8.5945770, -71.1598334)
         zoomLevel: 14
 
-        MapQuickItem
-        {
-            id: truck
-            coordinate: exampleTruck.coordinate
-            width: 50
-            height: 50
-            sourceItem: Image {source: "qrc:/camion.png"
-                width: 50
-                height: 50
-            }
-        }
-
         Repeater
         {
             model: simulation.warehouses

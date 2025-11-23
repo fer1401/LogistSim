@@ -16,7 +16,7 @@ int Truck::getId() const
     return id;
 }
 
-Designar::Path<CityGraph> Truck::getAssignedRoute() const
+Designar::DynArray<MapPoint> Truck::getAssignedRoute() const
 {
     return assignedRoute;
 }
@@ -28,14 +28,39 @@ bool Truck::isShipping() const
 
 void Truck::assignRoute(const Designar::Path<CityGraph> &newRoute)
 {
-    assignedRoute = newRoute;
+    for (const auto &node : newRoute.nodes())
+    {
+        assignedRoute.append(node->get_info());
+    }
+
+    routePosition = 0;
+
     shippingState = true;
 }
 
 void Truck::clearRoute()
 {
-    assignedRoute = Designar::Path<CityGraph>();
+    assignedRoute.clear();
+    routePosition = 0;
+
     shippingState = false;
+}
+
+void Truck::updateRoutePosition()
+{
+    if (assignedRoute.is_empty())
+    {
+        return;
+    }
+
+    if (routePosition == assignedRoute.size())
+    {
+        clearRoute();
+        return;
+    }
+
+    updatePosition(assignedRoute.at(routePosition).getLongitude(), assignedRoute.at(routePosition).getLatitude());
+    routePosition++;
 }
 
 void Truck::setId(int newId)
@@ -56,7 +81,7 @@ void Truck::setCoordinate(const QGeoCoordinate &newCoordinate)
 }
 
 void Truck::updatePosition(double longitude, double latitude)
-{
+{   
     QGeoCoordinate newCoord(latitude, longitude);
     setCoordinate(newCoord);
 }

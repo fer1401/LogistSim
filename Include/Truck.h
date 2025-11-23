@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QGeoCoordinate>
 #include "City.h"
+#include "array.hpp"
 
 class Truck : public QObject
 {
@@ -17,11 +18,12 @@ public:
 
     int getId() const;
     bool isShipping() const;
-    Designar::Path<CityGraph> getAssignedRoute() const;
+    Designar::DynArray<MapPoint> getAssignedRoute() const;
 
     void setId(int newId);
     void assignRoute(const Designar::Path<CityGraph> &newRoute);
     void clearRoute();
+    void updateRoutePosition();
 
     // Función que la simulación en C++ llamará para mover el camión
     Q_INVOKABLE void updatePosition(double longitude, double latitude);
@@ -37,7 +39,8 @@ private:
     QGeoCoordinate m_coordinate;
     int id;
     bool shippingState = false;
-    Designar::Path<CityGraph> assignedRoute;
+    Designar::DynArray<MapPoint> assignedRoute;
+    Designar::nat_t routePosition;
 };
 
 #endif // TRUCK_H
