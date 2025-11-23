@@ -377,9 +377,11 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
                 break;
             }
 
-            for (auto it = segment.nodes().begin(); it != segment.nodes().end(); ++it) {
-                fullPath.append(*it);
-            }
+            segment.remove_last_node(); // avoid duplication
+            segment.for_each([&fullPath](auto node, auto arc)
+            {
+                fullPath.append(node);
+            });
 
             currentNode = targetNode;
             ++i;
@@ -388,12 +390,10 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
         if (!failed)
         {
             auto backSeg = astar_solver.search_min_path(city, currentNode, warehouseNode);
-            if (backSeg.size() > 0)
+            backSeg.for_each([&fullPath](auto node, auto arc)
             {
-                for (auto it = backSeg.nodes().begin(); it != backSeg.nodes().end(); ++it) {
-                    fullPath.append(*it);
-                }
-            }
+                fullPath.append(node);
+            });
             resultPaths.push_back(std::move(fullPath));
         }
     }

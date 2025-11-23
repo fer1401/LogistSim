@@ -13,7 +13,7 @@ Simulation::Simulation(QObject *parent) : QObject{parent}
     initialInventory.addStock(2, 100);
     initialInventory.addStock(3, 75);
 
-    Warehouse *warehouseA = new Warehouse(8.563688, -71.204688, 10, initialInventory, this);
+    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 10, initialInventory, this);
     Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 5, initialInventory, this);
 
     warehouses.append(warehouseA);
@@ -46,12 +46,16 @@ Simulation::~Simulation()
 
 void Simulation::generateOrder()
 {
-    Order newOrder("Client_" + std::to_string(incomingOrders.size() + 1), 
-                   8.59000 + static_cast<double>(rand()) / RAND_MAX * 0.02, 
-                   -71.15000 + static_cast<double>(rand()) / RAND_MAX * 0.02);
-    
     std::random_device rd;  // a seed source for the random number engine
     std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+
+    std::uniform_real_distribution<> latDist(8.56837, 8.61000);
+    std::uniform_real_distribution<> lonDist(-71.16609, -71.12145);
+
+    Order newOrder("Client_" + std::to_string(incomingOrders.size() + 1), 
+                   latDist(gen), 
+                   lonDist(gen));
+    
     std::uniform_int_distribution<> productSelect(1, productCatalog.size());
     std::uniform_int_distribution<> numProducts(1, 2);
     std::uniform_int_distribution<> quantity(1, 10);

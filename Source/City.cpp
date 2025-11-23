@@ -47,6 +47,7 @@ City::City()
         //std::cout << "\nMemory used: " << memory.peak() << " MBytes\n";
 
         graph = handler.g;
+        graph.remove_node_if([](const auto &node){ return node->get_num_arcs() == 0; });
     }
     catch (const std::exception &e)
     {
