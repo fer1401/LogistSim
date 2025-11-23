@@ -2,6 +2,7 @@
 #include <algorithm> // For std::remove_if or vector manipulation
 #include <cmath>
 #include <tuple>
+#include <limits>
 #include <graphalgorithms.hpp>
 
 Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, const Inventory &initialInventory, QObject *parent)
@@ -212,25 +213,98 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     if (readyToShipOrders.empty())
         return resultPaths;
 
+    // A* solver instance
+    Designar::Astar<CityGraph, CityEdgeDistance, CityHeuristic> astar_solver;
+
+
     const int DEFAULT_TRUCK_CAPACITY = 100; // units (items).
 
     const size_t n = readyToShipOrders.size();
 
-    // Distances from warehouse (warehouse) to each customer and between customers
-    std::vector<double> d0(n);
-    std::vector<std::vector<double>> dij(n, std::vector<double>(n, 0.0));
+    // Distances from warehouse to each customer and between customers computed via A* path lengths.
+    // If a path can't be found, the distance is set to infinity.
+    std::vector<double> d0(n, std::numeric_limits<double>::infinity());
+    std::vector<std::vector<double>> dij(n, std::vector<double>(n, std::numeric_limits<double>::infinity()));
 
+    // Find nearest graph nodes for the warehouse and each customer
+    CityGraph::Node *warehouseNode = find_nearest_node(city, m_coordinate.latitude(), m_coordinate.longitude());
+
+    std::vector<CityGraph::Node*> custNode(n, nullptr);
+    for (size_t i = 0; i < n; ++i)
+        custNode[i] = find_nearest_node(city, readyToShipOrders[i].getLatitude(), readyToShipOrders[i].getLongitude());
+
+    // Helper to compute path distance by summing arc lengths
+    auto path_distance = [](const Designar::Path<CityGraph> &p) -> double {
+        double sum = 0.0;
+        p.for_each([&sum](auto node, auto arc)
+        {
+            if (arc)
+                sum += arc->get_info().getLength();
+        });
+        return sum;
+    };
+
+    // Cache A* paths so we don't recompute them when assembling final routes.
+    // warehouse -> customer
+    std::vector<Designar::Path<CityGraph>> path_w_cust;
+    path_w_cust.reserve(n);
+
+    // customer -> warehouse
+    std::vector<Designar::Path<CityGraph>> path_cust_w;
+    path_cust_w.reserve(n);
+
+    // customer -> customer (all directions)
+    std::vector<std::vector<Designar::Path<CityGraph>>> dijPaths(n, std::vector<Designar::Path<CityGraph>>(n, Designar::Path<CityGraph>(city)));
+
+    // Compute warehouse->customer and customer->warehouse
     for (size_t i = 0; i < n; ++i)
     {
-        d0[i] = haversine(m_coordinate.latitude(), m_coordinate.longitude(), readyToShipOrders[i].getLatitude(), readyToShipOrders[i].getLongitude());
+        // default empty paths (size()==0) correspond to unreachable
+        Designar::Path<CityGraph> p_w_c(city);
+        Designar::Path<CityGraph> p_c_w(city);
+
+        p_w_c = astar_solver.search_min_path(city, warehouseNode, custNode[i]);
+        if (p_w_c.size() == 0)
+            d0[i] = std::numeric_limits<double>::infinity();
+        else
+            d0[i] = path_distance(p_w_c);
+
+        p_c_w = astar_solver.search_min_path(city, custNode[i], warehouseNode);
+        if (p_c_w.size() == 0)
+            d0[i] = std::numeric_limits<double>::infinity();
+
+        path_w_cust.push_back(std::move(p_w_c));
+        path_cust_w.push_back(std::move(p_c_w));
     }
 
+    // Compute customer->customer paths (all ordered pairs)
     for (size_t i = 0; i < n; ++i)
     {
-        for (size_t j = i + 1; j < n; ++j)
+        for (size_t j = 0; j < n; ++j)
         {
-            double d = haversine(readyToShipOrders[i].getLatitude(), readyToShipOrders[i].getLongitude(), readyToShipOrders[j].getLatitude(), readyToShipOrders[j].getLongitude());
-            dij[i][j] = dij[j][i] = d;
+            if (i == j)
+            {
+                dij[i][j] = 0.0;
+                continue;
+            }
+            if (!custNode[i] || !custNode[j])
+            {
+                dij[i][j] = std::numeric_limits<double>::infinity();
+                // leave dijPaths[i][j] as empty path
+                continue;
+            }
+
+            auto p = astar_solver.search_min_path(city, custNode[i], custNode[j]);
+            if (p.size() == 0)
+            {
+                dij[i][j] = std::numeric_limits<double>::infinity();
+            }
+            else
+            {
+                dij[i][j] = path_distance(p);
+            }
+
+            dijPaths[i][j] = std::move(p);
         }
     }
 
@@ -340,70 +414,70 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
 
     std::cout << "Merged to " << std::count_if(routes.begin(), routes.end(), [](const Route &r){ return r.active; }) << " routes after savings.\n";
 
-    // A* solver instance
-    Designar::Astar<CityGraph, CityEdgeDistance, CityHeuristic> astar_solver;
-
+    
     for (const auto &r : routes)
     {
         if (!r.active)
             continue;
 
-        // Build a full path starting at warehouse
-        CityGraph::Node *warehouseNode = find_nearest_node(city, m_coordinate.latitude(), m_coordinate.longitude());
+        // We already computed/located the warehouse node earlier (warehouseNode).
         if (!warehouseNode)
             continue; // can't route without warehouse node
 
         Designar::Path<CityGraph> fullPath(city);
 
-        CityGraph::Node *currentNode = warehouseNode;
         bool failed = false;
-        int i = 0;
+        int prevOrderIdx = -1; // -1 means warehouse
         for (auto orderIdx : r.orders)
         {
-            const Order &o = readyToShipOrders[orderIdx];
-            CityGraph::Node *targetNode = find_nearest_node(city, o.getLatitude(), o.getLongitude());
-            if (!targetNode)
+            // select cached segment: warehouse->cust for first, else prevCust->cust
+            const Designar::Path<CityGraph> &segRef = (prevOrderIdx == -1) ? path_w_cust[orderIdx] : dijPaths[prevOrderIdx][orderIdx];
+
+            if (segRef.size() == 0)
             {
-                std::cout << "Failed to find target node for order " << i << "\n";
+                std::cout << "Failed to find cached path segment for route assembly (from " << prevOrderIdx << " to " << orderIdx << ")\n";
                 failed = true;
                 break;
             }
 
-            auto segment = astar_solver.search_min_path(city, currentNode, targetNode);
-            if (segment.size() == 0)
-            {
-                std::cout << "Failed to find path segment from current to target for order " << i << "\n";
-                failed = true;
-                break;
-            }
+            // copy segment so we can remove last node without mutating cache
+            Designar::Path<CityGraph> seg = segRef;
+            if (seg.size() > 0)
+                seg.remove_last_node(); // avoid duplication when appending
 
-            segment.remove_last_node(); // avoid duplication
-            segment.for_each([&fullPath](auto node, auto arc)
+            seg.for_each([&fullPath](auto node, auto arc)
             {
                 fullPath.append(node);
             });
 
-            currentNode = targetNode;
-            ++i;
+            prevOrderIdx = static_cast<int>(orderIdx);
         }
 
         if (!failed)
         {
-            auto backSeg = astar_solver.search_min_path(city, currentNode, warehouseNode);
-            backSeg.for_each([&fullPath](auto node, auto arc)
+            // append last customer -> warehouse
+            if (prevOrderIdx == -1)
+            {
+                // no orders? shouldn't happen because routes are non-empty
+                continue;
+            }
+
+            const Designar::Path<CityGraph> &backRef = path_cust_w[prevOrderIdx];
+            if (backRef.size() == 0)
+            {
+                std::cout << "Failed to find cached return path from customer " << prevOrderIdx << " to warehouse\n";
+                continue;
+            }
+
+            // append full back path (no removal)
+            backRef.for_each([&fullPath](auto node, auto arc)
             {
                 fullPath.append(node);
             });
+
             resultPaths.push_back(std::move(fullPath));
         }
     }
-
-    auto src = city.search_node([&](auto node){return node->get_info().getId() == 811906828; });
-    auto tgt = city.search_node([&](auto node){return node->get_info().getId() == 812694999; });
-
-    auto path = astar_solver.search_min_path(city, src, tgt);
-
-    resultPaths.push_back(path);
 
     std::cout << "Planned " << resultPaths.size() << " routes for shipment.\n";
 
