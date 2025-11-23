@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
-DSG = /home/sebastian/DeSiGNAR-2.0.0
+DSG = /home/jesus/Documentos/DeSiGNAR
 
 INCLUDEPATH += $${DSG}/include ../
 
@@ -29,7 +29,7 @@ SOURCES += \
     Source/Order.cpp \
     Source/Inventory.cpp \
     Source/Warehouse.cpp \
-    Source/Simulation.cpp
+    Source/Simulation.cpp \
     Source/Welcomedialog.cpp \
 
 HEADERS += \
@@ -43,7 +43,7 @@ HEADERS += \
     Include/Order.h \
     Include/Inventory.h \
     Include/Warehouse.h \
-    Include/Simulation.h
+    Include/Simulation.h \
     Include/Welcomedialog.h \
 
 FORMS += \
