@@ -4,17 +4,20 @@
 #include <graph.hpp>
 #include "CountHandler.h"
 
+using CityGraph = Designar::Digraph<MapPoint, Street>;
+
 class City
 {
 private:
 
-    Designar::Digraph<MapPoint, Street> graph;
-
+    CityGraph graph;
+    
 public:
 
     City();
 
-    const Designar::Digraph<MapPoint, Street> &getGraph() const;
+    const CityGraph &getGraph() const;
+    CityGraph &getGraph();
     void setGraph(Designar::Digraph<MapPoint, Street> g);
 };
 

@@ -15,41 +15,38 @@ Item
         center: QtPositioning.coordinate(8.5945770, -71.1598334)
         zoomLevel: 14
 
-        MapQuickItem
+        Repeater
         {
-            id: truck
-            coordinate: exampleTruck.coordinate
-            width: 50
-            height: 50
-            sourceItem: Image {source: "qrc:/camion.png"
+            model: simulation.warehouses
+
+            delegate: MapQuickItem{
+
+                coordinate: model.coordinate
                 width: 50
                 height: 50
+                sourceItem: Image {source: "qrc:/almacen.png"
+                    width: 50
+                    height: 50
+                }
             }
         }
 
-        MapQuickItem
+        Repeater
         {
-            id: warehouseItemA
-            coordinate: warehouseA.coordinate
-            width: 50
-            height: 50
-            sourceItem: Image {source: "qrc:/almacen.png"
+            model: simulation.trucks
+
+            delegate: MapQuickItem{
+
+                coordinate: model.coordinate
                 width: 50
                 height: 50
+                sourceItem: Image {source: "qrc:/camion.png"
+                    width: 25
+                    height: 25
+                }
             }
         }
 
-        MapQuickItem
-        {
-            id: warehouseItemB
-            coordinate: warehouseB.coordinate
-            width: 50
-            height: 50
-            sourceItem: Image {source: "qrc:/almacen.png"
-                width: 50
-                height: 50
-            }
-        }
 
         DragHandler
         {
