@@ -46,7 +46,7 @@ HEADERS += \
     Include/Warehouse.h \
     Include/Simulation.h \
     Include/Welcomedialog.h \
-    Include/Settings.h \
+    Include/Settings.h
 
 FORMS += \
     Forms/mainwindow.ui \
@@ -63,3 +63,5 @@ LIBS += -lprotobuf -lbz2 -lexpat -lz -lgdal -L$${DSG}/lib -lDesignar -lboost_ios
 
 RESOURCES += \
     res.qrc
+
+DISTFILES += \

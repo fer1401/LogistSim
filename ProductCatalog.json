@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "nombre": "Laptop",
+    "descripcion": "HP Spectre x360"
+  },
+  {
+    "id": 2,
+    "nombre": "Smartphone",
+    "descripcion": "Samsung Galaxy S21"
+  },
+  {
+    "id": 3,
+    "nombre": "Tablet",
+    "descripcion": "iPad Pro"
+  },
+  {
+    "id": 4,
+    "nombre": "Auriculares",
+    "descripcion": "Sony WH-1000XM5"
+  }
+]
