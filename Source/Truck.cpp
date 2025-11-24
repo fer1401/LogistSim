@@ -11,6 +11,15 @@ QGeoCoordinate Truck::getCoordinate()
     return m_coordinate;
 }
 
+QGeoRoute Truck::getVisualPath()
+{
+    QGeoRoute result;
+
+    result.setPath(visualPath);
+
+    return result;
+}
+
 int Truck::getId() const
 {
     return id;
@@ -31,11 +40,15 @@ void Truck::assignRoute(const Designar::Path<CityGraph> &newRoute)
     for (const auto &node : newRoute.nodes())
     {
         assignedRoute.append(node->get_info());
+
+        visualPath.append(QGeoCoordinate(node->get_info().getLatitude(), node->get_info().getLongitude()));
     }
 
     routePosition = 0;
 
     shippingState = true;
+
+    emit visualPathChanged();
 }
 
 void Truck::clearRoute()
@@ -56,6 +69,9 @@ void Truck::updateRoutePosition()
     if (routePosition == assignedRoute.size())
     {
         clearRoute();
+        visualPath.clear();
+
+        emit visualPathChanged();
         return;
     }
 
@@ -78,6 +94,18 @@ void Truck::setCoordinate(const QGeoCoordinate &newCoordinate)
     m_coordinate = newCoordinate;
     // Emitir la señal para notificar a QML
     emit coordinateChanged();
+}
+
+void Truck::setVisualPath(const QGeoRoute &newVisualPath)
+{
+    if (visualPath == newVisualPath.path())
+    {
+        return;
+    }
+
+    visualPath = newVisualPath.path();
+
+    emit visualPathChanged();
 }
 
 void Truck::updatePosition(double longitude, double latitude)

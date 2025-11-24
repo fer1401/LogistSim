@@ -47,6 +47,19 @@ Item
             }
         }
 
+        Repeater
+        {
+            model: simulation.trucks
+
+            delegate: MapRoute{
+                route: model.visualPath
+
+                line.width: 3
+
+                line.color: "Blue"
+            }
+        }
+
 
         DragHandler
         {
