@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+class Settings;
+
 namespace Ui {
 class WelcomeDialog;
 }
@@ -15,8 +17,12 @@ public:
     explicit WelcomeDialog(QWidget *parent = nullptr);
     ~WelcomeDialog();
 
+private slots:
+    void on_settingsButton_clicked();
+
 private:
     Ui::WelcomeDialog *ui;
+    Settings *settingsWindow = nullptr;
 };
 
 #endif // WELCOMEDIALOG_H

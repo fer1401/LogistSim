@@ -148,3 +148,31 @@ void Simulation::simulationTick()
 
     emit trucksChanged();
 }
+
+bool Simulation::addNewWarehouse(double latitude, double longitude)
+{
+    // Verificar el límite de almacenes
+    if (warehouses.size() >= MAX_WAREHOUSES) {
+        qWarning("Maximum warehouse limit reached (%d).", MAX_WAREHOUSES);
+        emit warehouseLimitReached();
+        return false;
+    }
+
+    // Definir un inventario inicial por defecto (ajusta los IDs de producto y cantidades)
+    Inventory initialInventory;
+    initialInventory.addStock(1, 100);
+    initialInventory.addStock(2, 100);
+    initialInventory.addStock(3, 100);
+
+    // Crear el nuevo almacén y agregarlo a la QList<Warehouse*>
+    // Suponiendo que el constructor es: Warehouse(lat, lon, truckCapacity, inventory, parent)
+    Warehouse *newWarehouse = new Warehouse(latitude, longitude, 10, initialInventory, this);
+
+    // ESTE ES EL PASO CLAVE: Agregar a la lista de Warehouse*
+    warehouses.append(newWarehouse);
+
+    // Notificar a QML que la lista ha cambiado, actualizando el Repeater
+    emit warehousesChanged();
+
+    return true;
+}

@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QObject>
 #include <QList>
+#include <QQuickItem>
 
 class Simulation : public QObject
 {
@@ -27,6 +28,7 @@ public:
     void stopClock();
     QList<QObject*> getVisualWarehouses();
     QList<QObject*> getVisualTrucks();
+    Q_INVOKABLE bool addNewWarehouse(double latitude, double longitude);
 
 private slots:
 
@@ -36,10 +38,12 @@ signals:
 
     void warehousesChanged();
     void trucksChanged();
+    void warehouseLimitReached();
 
 private:
     City city;
     QList<Warehouse*> warehouses;
+    const int MAX_WAREHOUSES = 10;
     QList<QObject*> visualTrucks;
     std::vector<Order> incomingOrders;
     std::vector<Product> productCatalog;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>998</width>
+    <height>566</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>80</y>
+     <x>390</x>
+     <y>100</y>
      <width>141</width>
      <height>31</height>
     </rect>
@@ -26,31 +26,38 @@
     <string>Bienvenido a LogistSim</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="IniciarButton">
+  <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>260</y>
-     <width>111</width>
-     <height>23</height>
+     <x>240</x>
+     <y>400</y>
+     <width>471</width>
+     <height>121</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Iniciar simulacion </string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="SalirButton">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>260</y>
-     <width>84</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Salir</string>
-   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QPushButton" name="ExitButton">
+      <property name="text">
+       <string>Exit</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="SettingsButton">
+      <property name="text">
+       <string>Settings</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="StartButton">
+      <property name="text">
+       <string>Start</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
-DSG = /home/jesus/Documentos/DeSiGNAR
+DSG = /home/luisa/DeSiGNAR-2.0.0
 
 INCLUDEPATH += $${DSG}/include ../
 
@@ -21,6 +21,7 @@ SOURCES += \
     Source/City.cpp \
     Source/CountHandler.cpp \
     Source/MapPoint.cpp \
+    Source/Settings.cpp \
     Source/Street.cpp \
     Source/Truck.cpp \
     Source/main.cpp \
@@ -45,10 +46,12 @@ HEADERS += \
     Include/Warehouse.h \
     Include/Simulation.h \
     Include/Welcomedialog.h \
+    Include/Settings.h \
 
 FORMS += \
     Forms/mainwindow.ui \
     Forms/welcomedialog.ui \
+    Forms/settings.ui \
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
