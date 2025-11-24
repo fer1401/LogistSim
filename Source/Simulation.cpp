@@ -1,6 +1,7 @@
 #include "Simulation.h"
 #include "Inventory.h"
 #include "graphalgorithms.hpp"
+#include <limits>
 
 const int simulationClockInterval = 200;
 
@@ -80,10 +81,13 @@ void Simulation::run()
     for (auto& order : incomingOrders)
     {
         CityGraph::Node *customerNode = find_nearest_node(city.getGraph(), order.getLatitude(), order.getLongitude());
-        bool fulfilled = false;
+        
+        // Variables to track the best (closest) fulfilling warehouse found so far
+        Warehouse* bestWarehouse = nullptr;
+        double minDistance = std::numeric_limits<double>::max(); // Initialize with maximum possible value
+    
         for (auto& warehouse : warehouses)
         {
-            
             CityGraph::Node *warehouseNode = find_nearest_node(city.getGraph(), warehouse->getCoordinate().latitude(), warehouse->getCoordinate().longitude());
             Designar::Path<CityGraph> p_w_c = astar_solver.search_min_path(city.getGraph(), warehouseNode, customerNode);
             Designar::Path<CityGraph> p_c_w = astar_solver.search_min_path(city.getGraph(), customerNode, warehouseNode);
@@ -95,14 +99,23 @@ void Simulation::run()
             
             if (warehouse->getInventory().canFulfillOrder(order))
             {
-                warehouse->addOrder(order);
-                fulfilled = true;
-                break;
+                double currentDistance = path_distance(p_w_c) + path_distance(p_c_w);
+                // Check if this warehouse is closer than the current best
+                if (currentDistance < minDistance)
+                {
+                    minDistance = currentDistance;
+                    bestWarehouse = warehouse;
+                }
+                
+                
             }
+
+            
         }
-        if (!fulfilled)
+
+        if (bestWarehouse != nullptr)
         {
-            // Handle unfulfillable order (e.g., log it, notify user, etc.)
+            bestWarehouse->addOrder(order);
         }
     }
     incomingOrders.clear();

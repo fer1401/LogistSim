@@ -178,16 +178,6 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     for (size_t i = 0; i < n; ++i)
         custNode[i] = find_nearest_node(city, readyToShipOrders[i].getLatitude(), readyToShipOrders[i].getLongitude());
 
-    // Helper to compute path distance by summing arc lengths
-    auto path_distance = [](const Designar::Path<CityGraph> &p) -> double {
-        double sum = 0.0;
-        p.for_each([&sum](auto node, auto arc)
-        {
-            if (arc)
-                sum += arc->get_info().getLength();
-        });
-        return sum;
-    };
 
     // Cache A* paths so we don't recompute them when assembling final routes.
     // warehouse -> customer
