@@ -1,5 +1,6 @@
 #include "Simulation.h"
 #include "Inventory.h"
+#include "graphalgorithms.hpp"
 
 const int simulationClockInterval = 200;
 
@@ -73,12 +74,25 @@ void Simulation::generateOrder()
 
 void Simulation::run()
 {
+    // A* solver instance
+    Designar::Astar<CityGraph, CityEdgeDistance, CityHeuristic> astar_solver;
     // Process incoming orders
     for (auto& order : incomingOrders)
     {
+        CityGraph::Node *customerNode = find_nearest_node(city.getGraph(), order.getLatitude(), order.getLongitude());
         bool fulfilled = false;
         for (auto& warehouse : warehouses)
         {
+            
+            CityGraph::Node *warehouseNode = find_nearest_node(city.getGraph(), warehouse->getCoordinate().latitude(), warehouse->getCoordinate().longitude());
+            Designar::Path<CityGraph> p_w_c = astar_solver.search_min_path(city.getGraph(), warehouseNode, customerNode);
+            Designar::Path<CityGraph> p_c_w = astar_solver.search_min_path(city.getGraph(), customerNode, warehouseNode);
+
+            if (p_w_c.size() == 0 || p_c_w.size() == 0)
+            {
+                continue; // can't route from this warehouse to customer
+            }
+            
             if (warehouse->getInventory().canFulfillOrder(order))
             {
                 warehouse->addOrder(order);

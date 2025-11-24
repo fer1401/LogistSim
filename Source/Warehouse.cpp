@@ -117,61 +117,6 @@ void Warehouse::fullfillAllPossibleOrders()
     }
 }
 
-// Collect active routes and convert to Designar::Path placeholders
-// Define distance (edge cost) and heuristic for A*
-struct CityEdgeDistance
-{
-    using Type = double;
-    static constexpr Type ZERO = 0.0;
-    Type operator()(const CityGraph::Arc *a) const
-    {
-        return a->get_info().getLength();
-    }
-};
-
-// Helper: haversine distance (meters)
-double haversine (double lat1, double lon1, double lat2, double lon2)
-{
-    static const double R = 6371000.0; // Earth radius in meters
-    const double toRad = M_PI / 180.0;
-    double dLat = (lat2 - lat1) * toRad;
-    double dLon = (lon2 - lon1) * toRad;
-    double a = std::sin(dLat / 2) * std::sin(dLat / 2) + std::cos(lat1 * toRad) * std::cos(lat2 * toRad) * std::sin(dLon / 2) * std::sin(dLon / 2);
-    double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1 - a));
-    return R * c;
-};
-
-struct CityHeuristic
-{
-    using Type = double;
-    static constexpr Type ZERO = 0.0;
-    Type operator()(const CityGraph::Node *current, const CityGraph::Node *target) const
-    {
-        double lat1 = current->get_info().getLatitude();
-        double lon1 = current->get_info().getLongitude();
-        double lat2 = target->get_info().getLatitude();
-        double lon2 = target->get_info().getLongitude();
-        return haversine(lat1, lon1, lat2, lon2);
-    }
-};
-
-// Helper: find nearest graph node to given coordinates
-CityGraph::Node* find_nearest_node(CityGraph &city, double lat, double lon)
-{
-    CityGraph::Node *best = nullptr;
-    double bestd = std::numeric_limits<double>::infinity();
-    for (const auto &node : city.nodes())
-    {
-        double d = haversine(lat, lon, node->get_info().getLatitude(), node->get_info().getLongitude());
-        if (d < bestd)
-        {
-            bestd = d;
-            best = node;
-        }
-    }
-    return best;
-}
-
 // Initial routes: one customer per route
 struct Route
 {
@@ -259,19 +204,17 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     // Compute warehouse->customer and customer->warehouse
     for (size_t i = 0; i < n; ++i)
     {
-        // default empty paths (size()==0) correspond to unreachable
-        Designar::Path<CityGraph> p_w_c(city);
-        Designar::Path<CityGraph> p_c_w(city);
+        Designar::Path<CityGraph> p_w_c = astar_solver.search_min_path(city, warehouseNode, custNode[i]);
+        Designar::Path<CityGraph> p_c_w = astar_solver.search_min_path(city, custNode[i], warehouseNode);
 
-        p_w_c = astar_solver.search_min_path(city, warehouseNode, custNode[i]);
-        if (p_w_c.size() == 0)
+        if (p_w_c.size() == 0 || p_c_w.size() == 0)
+        {
             d0[i] = std::numeric_limits<double>::infinity();
+        }
         else
+        {
             d0[i] = path_distance(p_w_c);
-
-        p_c_w = astar_solver.search_min_path(city, custNode[i], warehouseNode);
-        if (p_c_w.size() == 0)
-            d0[i] = std::numeric_limits<double>::infinity();
+        }
 
         path_w_cust.push_back(std::move(p_w_c));
         path_cust_w.push_back(std::move(p_c_w));
@@ -325,6 +268,13 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     {
         for (size_t j = i + 1; j < n; ++j)
         {
+            if(d0[i] == std::numeric_limits<double>::infinity() ||
+               d0[j] == std::numeric_limits<double>::infinity() ||
+               dij[i][j] == std::numeric_limits<double>::infinity())
+            {
+                continue; // unreachable paths
+            }
+
             double s = d0[i] + d0[j] - dij[i][j];
             savings.emplace_back(s, i, j);
         }
