@@ -14,13 +14,20 @@ Settings::Settings(Simulation *s, QWidget *parent)
     setupMapTab();
 
     // Inicializar el modelo
-    //productModel = new QStandardItemModel(this);
+    productModel = new QStandardItemModel(this);
 
     // Cargar el JSON desde la ruta de recursos
-    //loadProductCatalog(":/ProductCatalog.json");
+    loadProductCatalog(":/ProductCatalog.json");
 
     // Enlazar el modelo a QTableView
-    //ui->tableView->setModel(productModel);
+    ui->tableView->setModel(productModel);
+
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    ui->tableView->verticalHeader()->hide();
+
 }
 
 Settings::~Settings()

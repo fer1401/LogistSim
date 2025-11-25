@@ -20,20 +20,17 @@ Item
             model: simulation.warehouses // Usamos la propiedad expuesta desde C++
 
             delegate: MapQuickItem {
-                // Asegúrate de que tu clase Warehouse tenga Q_PROPERTY para latitude y longitude
                 coordinate: model.coordinate
                 width: 50
                 height: 50
                 sourceItem: Image {
-                    source: "qrc:/almacen.png" // La imagen del pin del almacén
+                    source: "qrc:/almacen.png"
                     width: 50
                     height: 50
                 }
             }
         }
 
-
-        // --- Funcionalidad de Arrastre y Zoom (de tu mapa original) ---
         DragHandler
         {
             id: setupMapDragHandler
