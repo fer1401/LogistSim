@@ -8,12 +8,12 @@ const int simulationClockInterval = 200;
 Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
 {
     Inventory initialInventory;
-    initialInventory.addStock(1, 50);
-    initialInventory.addStock(2, 100);
-    initialInventory.addStock(3, 75);
+    initialInventory.addStock(1, 250);
+    initialInventory.addStock(2, 300);
+    initialInventory.addStock(3, 475);
 
-    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 10, initialInventory, this);
-    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 5, initialInventory, this);
+    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 10, 3, initialInventory, this);
+    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 5, 2, initialInventory, this);
 
     warehouses.append(warehouseA);
     warehouses.append(warehouseB);
@@ -27,7 +27,7 @@ Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
     QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
     simulationClock->setInterval(simulationClockInterval);
 
-    for (int i = 0; i < 100; ++i)
+    for (int i = 0; i < 150; ++i)
     {
         generateOrder();
     }
@@ -75,8 +75,10 @@ void Simulation::run()
     // A* solver instance
     Designar::Astar<CityGraph, CityEdgeDistance, CityHeuristic> astar_solver;
     // Process incoming orders
-    for (auto& order : incomingOrders)
+    for (int i = 0; i < incomingOrders.size(); ++i)
     {
+        Order order = incomingOrders[i];
+
         CityGraph::Node *customerNode = find_nearest_node(city.getGraph(), order.getLatitude(), order.getLongitude());
         
         // Variables to track the best (closest) fulfilling warehouse found so far
@@ -103,20 +105,16 @@ void Simulation::run()
                     minDistance = currentDistance;
                     bestWarehouse = warehouse;
                 }
-                
-                
-            }
-
-            
+            }            
         }
 
         if (bestWarehouse != nullptr)
         {
             bestWarehouse->addOrder(order);
             visualOrders.append(QVariant::fromValue(QGeoCoordinate(customerNode->get_info().getLatitude(), customerNode->get_info().getLongitude())));
+            incomingOrders.erase(incomingOrders.begin() + i);
         }
     }
-    incomingOrders.clear();
 
     // Update warehouses
     for (auto& warehouse : warehouses)
@@ -176,6 +174,8 @@ void Simulation::simulationTick()
 
             std::remove_if(visualOrders.begin(), visualOrders.end(), [&truck](QVariant a){ return truck->getCoordinate() == a.value<QGeoCoordinate>() ;  });
         }
+        // Assign new routes if trucks are available
+        warehouse->assignRoutes();
     }
 
     emit trucksChanged();

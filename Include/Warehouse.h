@@ -30,7 +30,7 @@ signals:
     void trucksChanged();
 
 public:
-    explicit Warehouse(double latitude, double longitude, int totalEmployees, const Inventory& initialInventory, QObject *parent = nullptr);
+    explicit Warehouse(double latitude, double longitude, int totalEmployees, int numTrucks, const Inventory& initialInventory, QObject *parent = nullptr);
     ~Warehouse();
 
     QGeoCoordinate getCoordinate() const;

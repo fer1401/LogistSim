@@ -5,10 +5,12 @@
 #include <limits>
 #include <graphalgorithms.hpp>
 
-Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, const Inventory &initialInventory, QObject *parent)
+Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, int numTrucks, const Inventory &initialInventory, QObject *parent)
     : QObject{parent}, m_coordinate(latitude, longitude), totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory)
 {
-    dockedTrucks.append(new Truck(1, m_coordinate, this));
+    for (int i = 0; i < numTrucks; ++i) {
+        dockedTrucks.append(new Truck(i + 1, m_coordinate, this));
+    }
 }
 
 Warehouse::~Warehouse()
