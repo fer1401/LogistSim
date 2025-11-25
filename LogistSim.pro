@@ -30,6 +30,7 @@ SOURCES += \
     Source/Inventory.cpp \
     Source/Warehouse.cpp \
     Source/Simulation.cpp \
+    Source/Stats.cpp \
     Source/Welcomedialog.cpp \
 
 HEADERS += \
@@ -44,6 +45,7 @@ HEADERS += \
     Include/Inventory.h \
     Include/Warehouse.h \
     Include/Simulation.h \
+    Include/Stats.h \
     Include/Welcomedialog.h \
 
 FORMS += \
