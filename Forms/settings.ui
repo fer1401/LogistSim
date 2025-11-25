@@ -85,9 +85,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="DelateButton">
+       <widget class="QPushButton" name="DeleteButton">
         <property name="text">
-         <string>Delate</string>
+         <string>Delete</string>
         </property>
        </widget>
       </item>

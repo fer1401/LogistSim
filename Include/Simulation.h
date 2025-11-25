@@ -9,6 +9,9 @@
 #include <QObject>
 #include <QList>
 #include <QQuickItem>
+#include <algorithm>
+#include <QInputDialog>
+#include <QMessageBox>
 
 class Simulation : public QObject
 {
@@ -29,6 +32,9 @@ public:
     QList<QObject*> getVisualWarehouses();
     QList<QObject*> getVisualTrucks();
     Q_INVOKABLE bool addNewWarehouse(double latitude, double longitude);
+    const std::vector<Product>& getProductCatalog() const { return productCatalog; } //get para obtener el catalogo de profuctos
+    bool addNewProduct(int id, const QString &name, const QString &description);
+    bool deleteProduct(int id);
     QList<Warehouse*> getWarehouses();
 
 private slots:
