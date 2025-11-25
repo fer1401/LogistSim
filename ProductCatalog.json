@@ -2,21 +2,101 @@
   {
     "id": 1,
     "nombre": "Laptop",
-    "descripcion": "HP Spectre x360"
+    "descripcion": "HP Spectre x360, 13.5 pulgadas"
   },
   {
     "id": 2,
     "nombre": "Smartphone",
-    "descripcion": "Samsung Galaxy S21"
+    "descripcion": "Samsung Galaxy S23 Ultra, 256GB"
   },
   {
     "id": 3,
     "nombre": "Tablet",
-    "descripcion": "iPad Pro"
+    "descripcion": "iPad Pro (6ta gen), 12.9 pulgadas"
   },
   {
     "id": 4,
     "nombre": "Auriculares",
-    "descripcion": "Sony WH-1000XM5"
+    "descripcion": "Sony WH-1000XM5 con cancelación de ruido"
+  },
+  {
+    "id": 5,
+    "nombre": "Televisor Smart",
+    "descripcion": "LG OLED C3, 55 pulgadas, 4K"
+  },
+  {
+    "id": 6,
+    "nombre": "Cámara Digital",
+    "descripcion": "Canon EOS R6 Mark II, sin espejo"
+  },
+  {
+    "id": 7,
+    "nombre": "Consola de Videojuegos",
+    "descripcion": "PlayStation 5 con lector de discos"
+  },
+  {
+    "id": 8,
+    "nombre": "Altavoz Inteligente",
+    "descripcion": "Amazon Echo Dot (5ta gen)"
+  },
+  {
+    "id": 9,
+    "nombre": "Reloj Inteligente",
+    "descripcion": "Apple Watch Series 9, GPS + Cellular"
+  },
+  {
+    "id": 10,
+    "nombre": "Impresora Multifuncional",
+    "descripcion": "Epson EcoTank L3250 a color"
+  },
+  {
+    "id": 11,
+    "nombre": "Disco Duro Externo",
+    "descripcion": "Seagate Expansion, 2TB, USB 3.0"
+  },
+  {
+    "id": 12,
+    "nombre": "Cafetera Programable",
+    "descripcion": "De'Longhi Dedica EC685, espresso manual"
+  },
+  {
+    "id": 13,
+    "nombre": "Batidora de Mano",
+    "descripcion": "KitchenAid Artisan, 5 velocidades"
+  },
+  {
+    "id": 14,
+    "nombre": "Aspiradora Robot",
+    "descripcion": "iRobot Roomba j7+, con vaciado automático"
+  },
+  {
+    "id": 15,
+    "nombre": "Bicicleta de Montaña",
+    "descripcion": "Specialized Rockhopper Elite 29"
+  },
+  {
+    "id": 16,
+    "nombre": "Tienda de Campaña",
+    "descripcion": "The North Face Wawona 6, para 6 personas"
+  },
+  {
+    "id": 17,
+    "nombre": "Set de Herramientas",
+    "descripcion": "Stanley de 120 piezas, mecánica"
+  },
+  {
+    "id": 18,
+    "nombre": "Silla de Oficina Ergonómica",
+    "descripcion": "Herman Miller Sayl, respaldo ajustable"
+  },
+  {
+    "id": 19,
+    "nombre": "Router Wi-Fi",
+    "descripcion": "TP-Link Archer AXE75, Tri-Band Wi-Fi 6E"
+  },
+  {
+    "id": 20,
+    "nombre": "Libro Electrónico (eReader)",
+    "descripcion": "Kindle Paperwhite (11va gen), 16GB"
   }
 ]
