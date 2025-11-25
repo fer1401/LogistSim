@@ -24,6 +24,10 @@ public:
     explicit Settings(Simulation *s, QWidget *parent = nullptr);
     ~Settings();
 
+private slots:
+    void on_addProduct_clicked();//para agregar un producto
+    void on_deleteProduct_clicked();//para eliminar un producto
+
 private:
     Ui::Settings *ui;
     QQuickWidget *mapQuickWidget;
@@ -34,7 +38,7 @@ private:
 
     // Función para encapsular la lógica de configuración del mapa
     void setupMapTab();
-    void loadProductCatalog(const QString &filePath); // Función para cargar JSON
+    void setupProductCatalogView(); // Función para cargar los productos desde la simulacion
 };
 
 #endif // SETTINGS_H

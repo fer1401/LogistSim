@@ -175,3 +175,38 @@ bool Simulation::addNewWarehouse(double latitude, double longitude)
 
     return true;
 }
+
+bool Simulation::addNewProduct(int id, const QString &name, const QString &description)
+{
+    // 1. Verificar si el ID ya existe (los IDs deben ser únicos)
+    for (const auto& product : productCatalog) {
+        if (product.getId() == id) {
+            return false; // El ID ya existe
+        }
+    }
+
+    // 2. Crear el nuevo producto y agregarlo al vector
+    // Convertir de QString a std::string antes de la adición
+    productCatalog.emplace_back(Product(id, name.toStdString(), description.toStdString()));
+
+    return true;
+}
+
+bool Simulation::deleteProduct(int id)
+{
+    // 1. Usar std::remove_if para mover el producto a eliminar al final del vector
+    auto newEnd = std::remove_if(productCatalog.begin(), productCatalog.end(),
+                                 [id](const Product& p) {
+                                     return p.getId() == id;
+                                 });
+
+    // 2. Si el iterador newEnd es diferente al begin, significa que se encontró y eliminó un elemento
+    if (newEnd != productCatalog.end()) {
+        // 3. Eliminar físicamente el elemento (truncate)
+        productCatalog.erase(newEnd, productCatalog.end());
+
+        return true;
+    }
+
+    return false; // Producto no encontrado
+}

@@ -5,6 +5,5 @@
         <file>camion.png</file>
         <file>almacen.png</file>
         <file>WarehouseSetupMap.qml</file>
-        <file>ProductCatalog.json</file>
     </qresource>
 </RCC>
