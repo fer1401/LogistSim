@@ -27,7 +27,7 @@ Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
     QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
     simulationClock->setInterval(simulationClockInterval);
 
-    for (int i = 0; i < 150; ++i)
+    for (int i = 0; i < 75; ++i)
     {
         generateOrder();
     }
@@ -77,6 +77,8 @@ void Simulation::run()
     // Process incoming orders
     for (int i = 0; i < incomingOrders.size(); ++i)
     {
+        simulationStats.totalOrdersReceived++;
+
         Order order = incomingOrders[i];
 
         CityGraph::Node *customerNode = find_nearest_node(city.getGraph(), order.getLatitude(), order.getLongitude());
@@ -113,6 +115,8 @@ void Simulation::run()
             bestWarehouse->addOrder(order);
             visualOrders.append(QVariant::fromValue(QGeoCoordinate(customerNode->get_info().getLatitude(), customerNode->get_info().getLongitude())));
             incomingOrders.erase(incomingOrders.begin() + i);
+            i--; // Adjust index after erasure
+            simulationStats.totalOrdersFulfilled++;
         }
     }
 
@@ -120,7 +124,9 @@ void Simulation::run()
     for (auto& warehouse : warehouses)
     {
         warehouse->fullfillAllPossibleOrders();
-        warehouse->shipOrders(city.getGraph());
+        auto [assignedTrips, distanceTravelled] = warehouse->shipOrders(city.getGraph());
+        simulationStats.totalDistanceTraveled += distanceTravelled;
+        simulationStats.totalTripsMade += assignedTrips;
     }
 }
 
@@ -172,11 +178,17 @@ void Simulation::simulationTick()
         {
             truck->updateRoutePosition();
 
-            std::remove_if(visualOrders.begin(), visualOrders.end(), [&truck](QVariant a){ return truck->getCoordinate() == a.value<QGeoCoordinate>() ;  });
+            auto newEnd = std::remove_if(visualOrders.begin(), visualOrders.end(), [&truck](QVariant a) { return truck->getCoordinate() == a.value<QGeoCoordinate>(); });
+            int elementsDeleted = std::distance(newEnd, visualOrders.end());
+            visualOrders.erase(newEnd, visualOrders.end());
+            if (elementsDeleted > 0)
+                simulationStats.totalOrdersShipped += elementsDeleted;
         }
         // Assign new routes if trucks are available
         warehouse->assignRoutes();
     }
+
+    printStats(simulationStats);
 
     emit trucksChanged();
     emit ordersChanged();

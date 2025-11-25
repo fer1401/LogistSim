@@ -136,18 +136,20 @@ struct Route
     bool active = true;
 };
 
-void Warehouse::shipOrders(CityGraph &city)
+std::pair<int, float> Warehouse::shipOrders(CityGraph &city)
 {
     auto routes = planTruckRoutes(city);
     for (const auto &route : routes)
     {
         truckRoutes.push(route);
     }
-    assignRoutes();
+    return assignRoutes();
 }
 
-void Warehouse::assignRoutes()
+std::pair<int, float> Warehouse::assignRoutes()
 {
+    int assignedCount = 0;
+    float distanceTraveled = 0.0f;
     for (auto &truckPtr : dockedTrucks)
     {
         Truck *truck = truckPtr;
@@ -156,8 +158,11 @@ void Warehouse::assignRoutes()
             Designar::Path<CityGraph> route = truckRoutes.front();
             truckRoutes.pop();
             truck->assignRoute(route);
+            assignedCount++;
+            distanceTraveled += path_distance(route);
         }
     }
+    return std::make_pair(assignedCount, distanceTraveled);
 }
 
 std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &city)
