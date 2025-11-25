@@ -21,12 +21,13 @@ class Settings : public QWidget
     Q_OBJECT
 
 public:
-    explicit Settings(QWidget *parent = nullptr);
+    explicit Settings(Simulation *s, QWidget *parent = nullptr);
     ~Settings();
 
 private:
     Ui::Settings *ui;
     QQuickWidget *mapQuickWidget;
+    Simulation *simulation;
 
     // modelo de datos para QTableView
     QStandardItemModel *productModel;

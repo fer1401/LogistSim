@@ -23,22 +23,12 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
      <string>Warehouses</string>
     </attribute>
-    <widget class="QWidget" name="widget" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>581</width>
-       <height>401</height>
-      </rect>
-     </property>
-    </widget>
     <widget class="QPushButton" name="pushButton">
      <property name="geometry">
       <rect>
@@ -104,6 +94,19 @@
       </item>
      </layout>
     </widget>
+    <widget class="QQuickWidget" name="warehousesMapWidget">
+     <property name="geometry">
+      <rect>
+       <x>19</x>
+       <y>19</y>
+       <width>551</width>
+       <height>391</height>
+      </rect>
+     </property>
+     <property name="resizeMode">
+      <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
@@ -155,6 +158,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QtQuickWidgets/QQuickWidget</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

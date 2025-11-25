@@ -1,5 +1,6 @@
 #include "Include/mainwindow.h"
 #include "Welcomedialog.h"
+#include "Simulation.h"
 
 #include <QApplication>
 
@@ -7,16 +8,11 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    WelcomeDialog welcome;
+    Simulation simulation(nullptr);
 
-    if (welcome.exec() == QDialog::Accepted)
-    {
-        MainWindow w;
-        w.show();
+    WelcomeDialog welcome(&simulation);
 
-        return a.exec();
+    welcome.show();
 
-    } else {
-        return 0;
-    }
+    return a.exec();
 }
