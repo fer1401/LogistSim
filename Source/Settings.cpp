@@ -6,21 +6,21 @@
 #include <QDebug>
 #include <QStandardItem>
 
-Settings::Settings(QWidget *parent)
+Settings::Settings(Simulation *s, QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::Settings)
+    , ui(new Ui::Settings), simulation(s)
 {
     ui->setupUi(this);
     setupMapTab();
 
     // Inicializar el modelo
-    productModel = new QStandardItemModel(this);
+    //productModel = new QStandardItemModel(this);
 
     // Cargar el JSON desde la ruta de recursos
-    loadProductCatalog(":/ProductCatalog.json");
+    //loadProductCatalog(":/ProductCatalog.json");
 
     // Enlazar el modelo a QTableView
-    ui->tableView->setModel(productModel);
+    //ui->tableView->setModel(productModel);
 }
 
 Settings::~Settings()
@@ -30,24 +30,10 @@ Settings::~Settings()
 
 void Settings::setupMapTab()
 {
-    // 1. Crear el contenedor QQuickWidget
-    mapQuickWidget = new QQuickWidget(this);
+    QQuickWidget *map = ui->tab->findChild<QQuickWidget*>("warehousesMapWidget");
 
-    // 3. Cargar tu archivo QML
-    // Asegúrate de que la ruta sea correcta (asumo que está en recursos Qt, 'qrc:/')
-    mapQuickWidget->setSource(QUrl("qrc:/WarehouseSetupMap.qml"));
-
-    // 4. Integrar en el QTabWidget
-    QWidget *tab = ui->tab; // Asumiendo que 'tab_1' es el QWidget en la primera pestaña
-
-    // Usar un layout para asegurar que el mapa QML se estire para llenar la pestaña
-    QVBoxLayout *layout = new QVBoxLayout(tab);
-    layout->addWidget(mapQuickWidget);
-    layout->setContentsMargins(0, 0, 0, 0); // Quitar márgenes
-    tab->setLayout(layout);
-
-    // Ajustar el modo de redimensionamiento para que el QML ocupe todo el widget
-    mapQuickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    map->rootContext()->setContextProperty("simulation", simulation);
+    map->setSource(QUrl("qrc:/WarehouseSetupMap.qml"));
 }
 
 void Settings::loadProductCatalog(const QString &filePath)

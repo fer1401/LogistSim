@@ -2,6 +2,7 @@
 #define WELCOMEDIALOG_H
 
 #include <QDialog>
+#include "Simulation.h"
 
 class Settings;
 
@@ -14,15 +15,17 @@ class WelcomeDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit WelcomeDialog(QWidget *parent = nullptr);
+    explicit WelcomeDialog(Simulation *s, QWidget *parent = nullptr);
     ~WelcomeDialog();
 
 private slots:
-    void on_settingsButton_clicked();
+
+
+    void on_SettingsButton_clicked();
 
 private:
     Ui::WelcomeDialog *ui;
-    Settings *settingsWindow = nullptr;
+    Simulation *simulation;
 };
 
 #endif // WELCOMEDIALOG_H

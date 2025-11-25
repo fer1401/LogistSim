@@ -3,11 +3,8 @@
 
 const int simulationClockInterval = 200;
 
-Simulation::Simulation(QObject *parent) : QObject{parent}
+Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
 {
-    // Initialize city and warehouses
-    city = City();
-
     Inventory initialInventory;
     initialInventory.addStock(1, 50);
     initialInventory.addStock(2, 100);
@@ -170,6 +167,8 @@ bool Simulation::addNewWarehouse(double latitude, double longitude)
 
     // ESTE ES EL PASO CLAVE: Agregar a la lista de Warehouse*
     warehouses.append(newWarehouse);
+
+    qDebug()<<"Agregado";
 
     // Notificar a QML que la lista ha cambiado, actualizando el Repeater
     emit warehousesChanged();
