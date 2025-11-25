@@ -94,6 +94,8 @@ void Simulation::run()
             {
                 warehouse->addOrder(order);
                 fulfilled = true;
+                visualOrders.append(QVariant::fromValue(QGeoCoordinate(customerNode->get_info().getLatitude(), customerNode->get_info().getLongitude())));
+
                 break;
             }
         }
@@ -147,6 +149,11 @@ QList<QObject *> Simulation::getVisualTrucks()
     return result;
 }
 
+QVariantList Simulation::getVisualOrders()
+{
+    return visualOrders;
+}
+
 void Simulation::simulationTick()
 {
     for (const auto &warehouse : warehouses)
@@ -154,8 +161,11 @@ void Simulation::simulationTick()
         for (const auto &truck : warehouse->getDockedTrucks())
         {
             truck->updateRoutePosition();
+
+            std::remove_if(visualOrders.begin(), visualOrders.end(), [&truck](QVariant a){ return truck->getCoordinate() == a.value<QGeoCoordinate>() ;  });
         }
     }
 
     emit trucksChanged();
+    emit ordersChanged();
 }

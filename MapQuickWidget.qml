@@ -47,6 +47,27 @@ Item
             }
         }
 
+        MapItemView {
+                model: simulation.orders // Aquí se enlaza a tu Q_PROPERTY
+
+                delegate: MapQuickItem {
+
+                    coordinate: modelData
+
+                    anchorPoint.x: sourceItem.width / 2
+                    anchorPoint.y: sourceItem.height / 2
+
+                    sourceItem: Rectangle {
+                        width: 16
+                        height: 16
+                        radius: 8
+                        color: "red"
+                        border.color: "white"
+                        border.width: 2
+                    }
+                }
+        }
+
         Repeater
         {
             model: simulation.trucks

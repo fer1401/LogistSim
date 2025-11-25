@@ -17,6 +17,8 @@ class Simulation : public QObject
 
     Q_PROPERTY(QList<QObject*> trucks READ getVisualTrucks NOTIFY trucksChanged FINAL)
 
+    Q_PROPERTY(QVariantList orders READ getVisualOrders NOTIFY ordersChanged FINAL)
+
 public:
     explicit Simulation(QObject *parent = nullptr);
     ~Simulation();
@@ -27,6 +29,7 @@ public:
     void stopClock();
     QList<QObject*> getVisualWarehouses();
     QList<QObject*> getVisualTrucks();
+    QVariantList getVisualOrders();
 
 private slots:
 
@@ -36,6 +39,8 @@ signals:
 
     void warehousesChanged();
     void trucksChanged();
+    void ordersChanged();
+
 
 private:
     City city;
@@ -44,6 +49,7 @@ private:
     std::vector<Order> incomingOrders;
     std::vector<Product> productCatalog;
     QTimer *simulationClock;
+    QVariantList visualOrders;
 };
 
 #endif // SIMULATION_H
