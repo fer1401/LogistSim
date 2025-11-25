@@ -8,7 +8,7 @@
 Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, const Inventory &initialInventory, QObject *parent)
     : QObject{parent}, m_coordinate(latitude, longitude), totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory)
 {
-    dockedTrucks.append(new Truck(1, m_coordinate, this));
+    dockedTrucks.append(new Truck(1, m_coordinate, "Purple", this));
 }
 
 Warehouse::~Warehouse()

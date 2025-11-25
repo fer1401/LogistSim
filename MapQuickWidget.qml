@@ -40,9 +40,12 @@ Item
                 coordinate: model.coordinate
                 width: 50
                 height: 50
+
                 sourceItem: Image {source: "qrc:/camion.png"
                     width: 25
                     height: 25
+
+                    anchors.centerIn: parent
                 }
             }
         }
@@ -77,7 +80,7 @@ Item
 
                 line.width: 3
 
-                line.color: "Blue"
+                line.color: model.color
             }
         }
 

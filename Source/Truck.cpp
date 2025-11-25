@@ -1,9 +1,9 @@
 #include "Truck.h"
 
-Truck::Truck(int id, QGeoCoordinate initialCoord, QObject *parent)
+Truck::Truck(int id, QGeoCoordinate initialCoord, QString truckColor, QObject *parent)
     : QObject{parent},
     m_coordinate(initialCoord), // Coordenada inicial
-    id(id)
+    id(id), color(truckColor)
 {}
 
 QGeoCoordinate Truck::getCoordinate()
@@ -76,7 +76,21 @@ void Truck::updateRoutePosition()
     }
 
     updatePosition(assignedRoute.at(routePosition).getLongitude(), assignedRoute.at(routePosition).getLatitude());
+    visualPath.removeFirst();
+
+    emit visualPathChanged();
+
     routePosition++;
+}
+
+void Truck::setColor(QString truckColor)
+{
+    color = truckColor;
+}
+
+QString Truck::getColor()
+{
+    return color;
 }
 
 void Truck::setId(int newId)
