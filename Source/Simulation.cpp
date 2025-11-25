@@ -5,11 +5,8 @@
 
 const int simulationClockInterval = 200;
 
-Simulation::Simulation(QObject *parent) : QObject{parent}
+Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
 {
-    // Initialize city and warehouses
-    city = City();
-
     Inventory initialInventory;
     initialInventory.addStock(1, 50);
     initialInventory.addStock(2, 100);
@@ -30,7 +27,7 @@ Simulation::Simulation(QObject *parent) : QObject{parent}
     QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
     simulationClock->setInterval(simulationClockInterval);
 
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < 100; ++i)
     {
         generateOrder();
     }
@@ -116,6 +113,7 @@ void Simulation::run()
         if (bestWarehouse != nullptr)
         {
             bestWarehouse->addOrder(order);
+            visualOrders.append(QVariant::fromValue(QGeoCoordinate(customerNode->get_info().getLatitude(), customerNode->get_info().getLongitude())));
         }
     }
     incomingOrders.clear();
@@ -163,6 +161,11 @@ QList<QObject *> Simulation::getVisualTrucks()
     return result;
 }
 
+QVariantList Simulation::getVisualOrders()
+{
+    return visualOrders;
+}
+
 void Simulation::simulationTick()
 {
     for (const auto &warehouse : warehouses)
@@ -170,8 +173,11 @@ void Simulation::simulationTick()
         for (const auto &truck : warehouse->getDockedTrucks())
         {
             truck->updateRoutePosition();
+
+            std::remove_if(visualOrders.begin(), visualOrders.end(), [&truck](QVariant a){ return truck->getCoordinate() == a.value<QGeoCoordinate>() ;  });
         }
     }
 
     emit trucksChanged();
+    emit ordersChanged();
 }
