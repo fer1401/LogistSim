@@ -83,8 +83,8 @@ void Simulation::run()
         
         // Variables to track the best (closest) fulfilling warehouse found so far
         Warehouse* bestWarehouse = nullptr;
-        double minDistance = std::numeric_limits<double>::max(); // Initialize with maximum possible value
-    
+        double bestCost = std::numeric_limits<double>::max();
+
         for (auto& warehouse : warehouses)
         {
             CityGraph::Node *warehouseNode = find_nearest_node(city.getGraph(), warehouse->getCoordinate().latitude(), warehouse->getCoordinate().longitude());
@@ -98,11 +98,11 @@ void Simulation::run()
             
             if (warehouse->getInventory().canFulfillOrder(order))
             {
-                double currentDistance = path_distance(p_w_c) + path_distance(p_c_w);
+                double cost = path_distance(p_w_c) + path_distance(p_c_w) + warehouse->getCurrentLoad();
                 // Check if this warehouse is closer than the current best
-                if (currentDistance < minDistance)
+                if (cost < bestCost)
                 {
-                    minDistance = currentDistance;
+                    bestCost = cost;
                     bestWarehouse = warehouse;
                 }
             }            

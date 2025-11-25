@@ -68,6 +68,15 @@ const Inventory &Warehouse::getInventory() const
     return inventory;
 }
 
+float Warehouse::getCurrentLoad() const
+{
+    float load = 0.0f;
+    load += 1000 * (pendingOrders.size() + readyToShipOrders.size() * 0.5f); // order backlog
+    load += 1000 * (exp(busyEmployees/totalEmployees) - 1); // employee utilization
+    load += 100 * exp(-dockedTrucks.size()); // truck availability
+    return load;
+}
+
 void Warehouse::addOrder(const Order &order)
 {
     pendingOrders.push_back(order);

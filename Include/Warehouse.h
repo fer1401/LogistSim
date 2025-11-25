@@ -45,6 +45,8 @@ public:
     void dockTruck(Truck *truck);
     const Inventory& getInventory() const;
 
+    float getCurrentLoad() const;
+
     void addOrder(const Order& order);
     bool fulfillNextOrder();
     void fullfillAllPossibleOrders();
