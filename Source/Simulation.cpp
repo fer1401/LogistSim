@@ -27,7 +27,7 @@ Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
     QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
     simulationClock->setInterval(simulationClockInterval);
 
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < 100; ++i)
     {
         generateOrder();
     }
@@ -113,7 +113,6 @@ void Simulation::run()
         if (bestWarehouse != nullptr)
         {
             bestWarehouse->addOrder(order);
-            fulfilled = true;
             visualOrders.append(QVariant::fromValue(QGeoCoordinate(customerNode->get_info().getLatitude(), customerNode->get_info().getLongitude())));
         }
     }
