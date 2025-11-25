@@ -77,7 +77,7 @@ void Simulation::run()
     // Process incoming orders
     for (int i = 0; i < incomingOrders.size(); ++i)
     {
-        simulationStats.totalOrdersReceived++;
+        simulationStats.incrementTotalOrdersReceived();
 
         Order order = incomingOrders[i];
 
@@ -116,7 +116,7 @@ void Simulation::run()
             visualOrders.append(QVariant::fromValue(QGeoCoordinate(customerNode->get_info().getLatitude(), customerNode->get_info().getLongitude())));
             incomingOrders.erase(incomingOrders.begin() + i);
             i--; // Adjust index after erasure
-            simulationStats.totalOrdersFulfilled++;
+            simulationStats.incrementTotalOrdersFulfilled();
         }
     }
 
@@ -125,8 +125,8 @@ void Simulation::run()
     {
         warehouse->fullfillAllPossibleOrders();
         auto [assignedTrips, distanceTravelled] = warehouse->shipOrders(city.getGraph());
-        simulationStats.totalDistanceTraveled += distanceTravelled;
-        simulationStats.totalTripsMade += assignedTrips;
+        simulationStats.addDistanceTraveled(distanceTravelled);
+        simulationStats.addTripsMade(assignedTrips);
     }
 }
 
@@ -182,13 +182,11 @@ void Simulation::simulationTick()
             int elementsDeleted = std::distance(newEnd, visualOrders.end());
             visualOrders.erase(newEnd, visualOrders.end());
             if (elementsDeleted > 0)
-                simulationStats.totalOrdersShipped += elementsDeleted;
+                simulationStats.addOrdersShipped(elementsDeleted);
         }
         // Assign new routes if trucks are available
         warehouse->assignRoutes();
     }
-
-    printStats(simulationStats);
 
     emit trucksChanged();
     emit ordersChanged();
