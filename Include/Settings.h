@@ -41,7 +41,6 @@ private:
     void setupMapTab();
     void setupProductCatalogView(); // Función para cargar los productos desde la simulacion
     void loadWarehouses();
-    void loadProductCatalog(const QString &filePath);// Función para cargar JSON
 };
 
 #endif // SETTINGS_H

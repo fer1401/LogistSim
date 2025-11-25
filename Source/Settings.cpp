@@ -21,9 +21,6 @@ Settings::Settings(Simulation *s, QWidget *parent)
 
     loadWarehouses();
 
-    // Cargar el JSON desde la ruta de recursos
-    loadProductCatalog(":/ProductCatalog.json");
-
     // Enlazar el modelo a QTableView
     ui->tableView->setModel(productModel);
 
