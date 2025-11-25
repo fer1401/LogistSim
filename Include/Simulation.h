@@ -35,6 +35,7 @@ public:
     const std::vector<Product>& getProductCatalog() const { return productCatalog; } //get para obtener el catalogo de profuctos
     bool addNewProduct(int id, const QString &name, const QString &description);
     bool deleteProduct(int id);
+    QList<Warehouse*> getWarehouses();
 
 private slots:
 

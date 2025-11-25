@@ -210,3 +210,8 @@ bool Simulation::deleteProduct(int id)
 
     return false; // Producto no encontrado
 }
+
+QList<Warehouse *> Simulation::getWarehouses()
+{
+    return warehouses;
+}

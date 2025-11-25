@@ -17,12 +17,19 @@ Settings::Settings(Simulation *s, QWidget *parent)
     productModel = new QStandardItemModel(this);
 
     setupProductCatalogView();
+    warehousesModel = new QStandardItemModel(this);
+
+    loadWarehouses();
+
+    // Cargar el JSON desde la ruta de recursos
+    loadProductCatalog(":/ProductCatalog.json");
 
     // Enlazar el modelo a QTableView
     ui->tableView->setModel(productModel);
 
     // configuracion para seleccionar filas completas
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->warehousesTableView->setModel(warehousesModel);
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -32,6 +39,9 @@ Settings::Settings(Simulation *s, QWidget *parent)
 
     connect(ui->AddProductButton, &QPushButton::clicked, this, &Settings::on_addProduct_clicked);
     connect(ui->DeleteButton, &QPushButton::clicked, this, &Settings::on_deleteProduct_clicked);
+    ui->warehousesTableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    ui->warehousesTableView->verticalHeader()->hide();
 
 }
 
@@ -46,6 +56,34 @@ void Settings::setupMapTab()
 
     map->rootContext()->setContextProperty("simulation", simulation);
     map->setSource(QUrl("qrc:/WarehouseSetupMap.qml"));
+}
+
+void Settings::loadWarehouses()
+{
+    warehousesModel->clear();
+
+    QStringList headers = {"Latitud", "Longitud", "Nº de empleados"};
+    warehousesModel->setHorizontalHeaderLabels(headers);
+    warehousesModel->setColumnCount(headers.size());
+
+    for (const auto &warehouse : simulation->getWarehouses())
+    {
+        QList<QStandardItem*> rowItems;
+
+        QStandardItem *latitudItem = new QStandardItem(QString::fromStdString(std::to_string(warehouse->getCoordinate().latitude())));
+        QStandardItem *longitudItem = new QStandardItem(QString::fromStdString(std::to_string(warehouse->getCoordinate().longitude())));
+        QStandardItem *employees = new QStandardItem(QString::fromStdString(std::to_string(warehouse->getTotalEmployees())));
+
+        // Bloquear la edición de ciertas celdas si es un catálogo fijo
+        latitudItem->setFlags(latitudItem->flags() & ~Qt::ItemIsEditable);
+        longitudItem->setFlags(longitudItem->flags() & ~Qt::ItemIsEditable);
+        employees->setFlags(employees->flags() & ~Qt::ItemIsEditable);
+
+        rowItems << latitudItem << longitudItem << employees;
+
+        // Añadir la fila completa al modelo
+        warehousesModel->appendRow(rowItems);
+    }
 }
 
 void Settings::setupProductCatalogView()
