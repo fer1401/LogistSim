@@ -29,6 +29,7 @@ public:
     QList<QObject*> getVisualWarehouses();
     QList<QObject*> getVisualTrucks();
     Q_INVOKABLE bool addNewWarehouse(double latitude, double longitude);
+    QList<Warehouse*> getWarehouses();
 
 private slots:
 

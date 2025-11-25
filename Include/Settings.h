@@ -31,10 +31,12 @@ private:
 
     // modelo de datos para QTableView
     QStandardItemModel *productModel;
+    QStandardItemModel *warehousesModel;
 
     // Función para encapsular la lógica de configuración del mapa
     void setupMapTab();
-    void loadProductCatalog(const QString &filePath); // Función para cargar JSON
+    void loadWarehouses();
+    void loadProductCatalog(const QString &filePath);// Función para cargar JSON
 };
 
 #endif // SETTINGS_H

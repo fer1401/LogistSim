@@ -175,3 +175,8 @@ bool Simulation::addNewWarehouse(double latitude, double longitude)
 
     return true;
 }
+
+QList<Warehouse *> Simulation::getWarehouses()
+{
+    return warehouses;
+}
