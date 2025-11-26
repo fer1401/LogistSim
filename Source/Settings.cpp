@@ -236,3 +236,13 @@ void Settings::on_pushButton_clicked()
     loadWarehouses();
 }
 
+
+void Settings::on_pushButton_2_clicked()
+{
+    WelcomeDialog *welcome = new WelcomeDialog(simulation);
+
+    welcome->show();
+
+    delete this;
+}
+

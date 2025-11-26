@@ -9,6 +9,7 @@
 #include <QtQuickWidgets/QQuickWidget>
 #include <QStandardItemModel>
 #include "warehouseedit.h"
+#include "Welcomedialog.h"
 
 namespace Ui {
 class Settings;
@@ -28,6 +29,8 @@ private slots:
     void on_editButton_clicked();
 
     void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
 
 private:
     Ui::Settings *ui;

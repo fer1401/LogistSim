@@ -7,9 +7,6 @@ WelcomeDialog::WelcomeDialog(Simulation *s, QWidget *parent)
     , ui(new Ui::WelcomeDialog), simulation (s)
 {
     ui->setupUi(this);
-
-    connect(ui->StartButton, &QPushButton::clicked, this, &WelcomeDialog::accept);
-    connect(ui->ExitButton, &QPushButton::clicked, this, &WelcomeDialog::reject);
 }
 
 WelcomeDialog::~WelcomeDialog()
@@ -19,7 +16,19 @@ WelcomeDialog::~WelcomeDialog()
 
 void WelcomeDialog::on_SettingsButton_clicked()
 {
-    Settings *settingsWindow = new Settings(simulation, this);
+    Settings *settingsWindow = new Settings(simulation);
 
     settingsWindow->show();
+
+    this->close();
 }
+
+void WelcomeDialog::on_StartButton_clicked()
+{
+    MainWindow *mainWindow = new MainWindow(simulation);
+
+    mainWindow->show();
+
+    this->close();
+}
+

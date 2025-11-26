@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "Simulation.h"
+#include "mainwindow.h"
 
 class Settings;
 
@@ -22,6 +23,8 @@ private slots:
 
 
     void on_SettingsButton_clicked();
+
+    void on_StartButton_clicked();
 
 private:
     Ui::WelcomeDialog *ui;

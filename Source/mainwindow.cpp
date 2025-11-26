@@ -3,9 +3,9 @@
 #include <QQmlContext>
 #include <graphalgorithms.hpp>
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(Simulation *sim, QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow), simulation(new Simulation(this))
+    , ui(new Ui::MainWindow), simulation(sim)
 {
     ui->setupUi(this);
     QQuickWidget *map = ui->centralwidget->findChild<QQuickWidget*>("mapWidget");
