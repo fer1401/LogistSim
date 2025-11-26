@@ -5,10 +5,13 @@
 #include <QGeoCoordinate>
 #include <vector>
 #include <queue>
+#include <tuple> // NEW: For std::tuple
 #include "Inventory.h"
 #include "Order.h"
 #include "Truck.h"
 #include "City.h"
+
+class QTimer; // Forward declaration for QTimer
 
 class Warehouse : public QObject
 {
@@ -21,16 +24,22 @@ private:
     Inventory inventory;
     std::vector<Order> pendingOrders;
     std::vector<Order> readyToShipOrders;
+    std::vector<std::tuple<Order, int>> ordersInProgress; 
+    
     QList<Truck*> dockedTrucks;
     std::queue<Designar::Path<CityGraph>> truckRoutes;
 
     QGeoCoordinate m_coordinate;
+    QTimer *processingTimer = nullptr;
+
+private slots:
+    void advanceProcessing();
 
 signals:
     void trucksChanged();
 
 public:
-    explicit Warehouse(double latitude, double longitude, int totalEmployees, const Inventory& initialInventory, QObject *parent = nullptr);
+    explicit Warehouse(double latitude, double longitude, int totalEmployees, int numTrucks, QString truckColor, const Inventory& initialInventory, QObject *parent = nullptr);
     ~Warehouse();
 
     QGeoCoordinate getCoordinate() const;
@@ -45,6 +54,8 @@ public:
     void dockTruck(Truck *truck);
     Inventory& getInventory();
 
+    float getCurrentLoad() const;
+
     void addOrder(const Order& order);
     bool fulfillNextOrder();
     void fullfillAllPossibleOrders();
@@ -52,6 +63,8 @@ public:
     void assignRoutes();
     void setTotalEmployees(int employees);
 
+    std::pair<int, float> shipOrders(CityGraph& city);
+    std::pair<int, float> assignRoutes();
     std::vector<Designar::Path<CityGraph>> planTruckRoutes(CityGraph& city);
 };
 

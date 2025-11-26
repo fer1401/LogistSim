@@ -4,11 +4,24 @@
 #include <tuple>
 #include <limits>
 #include <graphalgorithms.hpp>
+#include <QTimer> // NEW: Include QTimer
+#include <random> // NEW: For std::geometric_distribution and engine
 
-Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, const Inventory &initialInventory, QObject *parent)
+
+
+Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, int numTrucks, QString truckColor, const Inventory &initialInventory, QObject *parent)
     : QObject{parent}, m_coordinate(latitude, longitude), totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory)
 {
-    dockedTrucks.append(new Truck(1, m_coordinate, this));
+    for (int i = 0; i < numTrucks; ++i) {
+        dockedTrucks.append(new Truck(i + 1, m_coordinate, truckColor, this));
+    }
+
+    // NEW: Initialize the timer and connect the slot
+    processingTimer = new QTimer(this);
+    // Timer fires every 1000ms (1 second) representing one simulation "tick"
+    processingTimer->setInterval(200); 
+    connect(processingTimer, &QTimer::timeout, this, &Warehouse::advanceProcessing);
+    processingTimer->start(); 
 }
 
 Warehouse::~Warehouse()
@@ -66,9 +79,23 @@ Inventory &Warehouse::getInventory()
     return inventory;
 }
 
+float Warehouse::getCurrentLoad() const
+{
+    float load = 0.0f;
+    load += 1000 * (pendingOrders.size() + readyToShipOrders.size() * 0.5f); // order backlog
+    load += 1000 * (exp(busyEmployees/totalEmployees) - 1); // employee utilization
+    load += 100 * exp(-dockedTrucks.size()); // truck availability
+    return load;
+}
+
 void Warehouse::addOrder(const Order &order)
 {
     pendingOrders.push_back(order);
+    // Deduct inventory for the order right away (to avoid overcommitting stock)
+    for (const auto &pair : order.getProductQuantities())
+    {
+        inventory.removeStock(pair.first, pair.second);
+    }
 }
 
 bool Warehouse::fulfillNextOrder()
@@ -83,29 +110,17 @@ bool Warehouse::fulfillNextOrder()
         return false;
     }
 
-    Order &nextOrder = pendingOrders.front();
+    Order nextOrder = std::move(pendingOrders.front());
+    pendingOrders.erase(pendingOrders.begin());
 
-    if (inventory.canFulfillOrder(nextOrder))
-    {
-        busyEmployees++;
+    busyEmployees++;
+    static std::random_device rd;
+    static std::mt19937 generator(rd()); 
+    std::geometric_distribution<int> distribution(0.05);
+    int requiredTicks = distribution(generator) + 1; 
+    ordersInProgress.emplace_back(std::move(nextOrder), requiredTicks); 
 
-        for (const auto &pair : nextOrder.getProductQuantities())
-        {
-            inventory.removeStock(pair.first, pair.second);
-        }
-
-        readyToShipOrders.push_back(std::move(nextOrder));
-
-        pendingOrders.erase(pendingOrders.begin());
-
-        busyEmployees--;
-
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 void Warehouse::fullfillAllPossibleOrders()
@@ -117,59 +132,37 @@ void Warehouse::fullfillAllPossibleOrders()
     }
 }
 
-// Collect active routes and convert to Designar::Path placeholders
-// Define distance (edge cost) and heuristic for A*
-struct CityEdgeDistance
+void Warehouse::advanceProcessing()
 {
-    using Type = double;
-    static constexpr Type ZERO = 0.0;
-    Type operator()(const CityGraph::Arc *a) const
+    if (ordersInProgress.empty())
     {
-        return a->get_info().getLength();
+        return;
     }
-};
 
-// Helper: haversine distance (meters)
-double haversine (double lat1, double lon1, double lat2, double lon2)
-{
-    static const double R = 6371000.0; // Earth radius in meters
-    const double toRad = M_PI / 180.0;
-    double dLat = (lat2 - lat1) * toRad;
-    double dLon = (lon2 - lon1) * toRad;
-    double a = std::sin(dLat / 2) * std::sin(dLat / 2) + std::cos(lat1 * toRad) * std::cos(lat2 * toRad) * std::sin(dLon / 2) * std::sin(dLon / 2);
-    double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1 - a));
-    return R * c;
-};
-
-struct CityHeuristic
-{
-    using Type = double;
-    static constexpr Type ZERO = 0.0;
-    Type operator()(const CityGraph::Node *current, const CityGraph::Node *target) const
+    for (auto it = ordersInProgress.rbegin(); it != ordersInProgress.rend();)
     {
-        double lat1 = current->get_info().getLatitude();
-        double lon1 = current->get_info().getLongitude();
-        double lat2 = target->get_info().getLatitude();
-        double lon2 = target->get_info().getLongitude();
-        return haversine(lat1, lon1, lat2, lon2);
-    }
-};
+        int &remainingTicks = std::get<1>(*it);
+        remainingTicks--;
 
-// Helper: find nearest graph node to given coordinates
-CityGraph::Node* find_nearest_node(CityGraph &city, double lat, double lon)
-{
-    CityGraph::Node *best = nullptr;
-    double bestd = std::numeric_limits<double>::infinity();
-    for (const auto &node : city.nodes())
-    {
-        double d = haversine(lat, lon, node->get_info().getLatitude(), node->get_info().getLongitude());
-        if (d < bestd)
+        if (remainingTicks <= 0)
         {
-            bestd = d;
-            best = node;
+            // Order is complete
+            readyToShipOrders.push_back(std::move(std::get<0>(*it)));
+
+            it = std::vector<std::tuple<Order, int>>::reverse_iterator(ordersInProgress.erase(std::next(it).base()));
+
+            if (busyEmployees > 0)
+            {
+                busyEmployees--;
+            }
+        }
+        else
+        {
+            ++it;
         }
     }
-    return best;
+    
+    fullfillAllPossibleOrders();
 }
 
 // Initial routes: one customer per route
@@ -180,18 +173,21 @@ struct Route
     bool active = true;
 };
 
-void Warehouse::shipOrders(CityGraph &city)
+std::pair<int, float> Warehouse::shipOrders(CityGraph &city)
 {
     auto routes = planTruckRoutes(city);
+    readyToShipOrders.clear();
     for (const auto &route : routes)
     {
         truckRoutes.push(route);
     }
-    assignRoutes();
+    return assignRoutes();
 }
 
-void Warehouse::assignRoutes()
+std::pair<int, float> Warehouse::assignRoutes()
 {
+    int assignedCount = 0;
+    float distanceTraveled = 0.0f;
     for (auto &truckPtr : dockedTrucks)
     {
         Truck *truck = truckPtr;
@@ -200,8 +196,11 @@ void Warehouse::assignRoutes()
             Designar::Path<CityGraph> route = truckRoutes.front();
             truckRoutes.pop();
             truck->assignRoute(route);
+            assignedCount++;
+            distanceTraveled += path_distance(route);
         }
     }
+    return std::make_pair(assignedCount, distanceTraveled);
 }
 
 void Warehouse::setTotalEmployees(int employees)
@@ -214,7 +213,7 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     // Clark-Wright Savings heuristic implementation
     std::vector<Designar::Path<CityGraph>> resultPaths;
 
-    // If there are no pending orders, return empty
+    // If there are no ready-to-ship orders, return empty
     if (readyToShipOrders.empty())
         return resultPaths;
 
@@ -238,16 +237,6 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     for (size_t i = 0; i < n; ++i)
         custNode[i] = find_nearest_node(city, readyToShipOrders[i].getLatitude(), readyToShipOrders[i].getLongitude());
 
-    // Helper to compute path distance by summing arc lengths
-    auto path_distance = [](const Designar::Path<CityGraph> &p) -> double {
-        double sum = 0.0;
-        p.for_each([&sum](auto node, auto arc)
-        {
-            if (arc)
-                sum += arc->get_info().getLength();
-        });
-        return sum;
-    };
 
     // Cache A* paths so we don't recompute them when assembling final routes.
     // warehouse -> customer
@@ -264,19 +253,17 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     // Compute warehouse->customer and customer->warehouse
     for (size_t i = 0; i < n; ++i)
     {
-        // default empty paths (size()==0) correspond to unreachable
-        Designar::Path<CityGraph> p_w_c(city);
-        Designar::Path<CityGraph> p_c_w(city);
+        Designar::Path<CityGraph> p_w_c = astar_solver.search_min_path(city, warehouseNode, custNode[i]);
+        Designar::Path<CityGraph> p_c_w = astar_solver.search_min_path(city, custNode[i], warehouseNode);
 
-        p_w_c = astar_solver.search_min_path(city, warehouseNode, custNode[i]);
-        if (p_w_c.size() == 0)
+        if (p_w_c.size() == 0 || p_c_w.size() == 0)
+        {
             d0[i] = std::numeric_limits<double>::infinity();
+        }
         else
+        {
             d0[i] = path_distance(p_w_c);
-
-        p_c_w = astar_solver.search_min_path(city, custNode[i], warehouseNode);
-        if (p_c_w.size() == 0)
-            d0[i] = std::numeric_limits<double>::infinity();
+        }
 
         path_w_cust.push_back(std::move(p_w_c));
         path_cust_w.push_back(std::move(p_c_w));
@@ -330,6 +317,13 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     {
         for (size_t j = i + 1; j < n; ++j)
         {
+            if(d0[i] == std::numeric_limits<double>::infinity() ||
+               d0[j] == std::numeric_limits<double>::infinity() ||
+               dij[i][j] == std::numeric_limits<double>::infinity())
+            {
+                continue; // unreachable paths
+            }
+
             double s = d0[i] + d0[j] - dij[i][j];
             savings.emplace_back(s, i, j);
         }
@@ -393,10 +387,29 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
         }
         else if (i_is_front && j_is_front)
         {
-            // reverse both then append
+            // reverse Ri, then append Rj
+            newOrders = Ri;
+            std::reverse(newOrders.begin(), newOrders.end());
+            // Need to be careful here. If i is front of Ri and j is front of Rj,
+            // the new path is (reversed Ri) + Rj or Ri + (reversed Rj) depending on which
+            // element (i or j) ends up connecting.
+            // Let's stick to the simplest, most common pattern: Ri then Rj (if ends match).
+            
+            // Standard Clark-Wright merge: join the non-warehouse ends.
+            // If i is front, and j is front, we need to join the end of Ri to the end of Rj.
+            // E.g., W -> ... -> end(Ri) <- i --- j -> end(Rj) <- ... <- W
+            // This is complex. The standard rule is: W-i-... and W-j-..., merge i-j.
+            // If i is front (Ri = i-...) and j is front (Rj = j-...), the only merge is i and j, 
+            // but this is not possible as i and j are the closest to W.
+            // The logic below assumes we are joining the end customer of one route to the start customer of the other.
+            
+            // Re-evaluating based on i/j being the *external* nodes of their routes:
+            // i_is_front && j_is_front: Join Ri's back to Rj's front (or vice versa), then reverse Ri. e.g., (W-...-j) + (i-...-W). Merge i-j. New path: W-...-j-i-...-W.
+            // To achieve this: Reverse Ri, then append Rj.
             newOrders = Ri;
             std::reverse(newOrders.begin(), newOrders.end());
             newOrders.insert(newOrders.end(), Rj.begin(), Rj.end());
+
         }
         else
         { // i_is_back && j_is_back

@@ -40,10 +40,47 @@ Item
                 coordinate: model.coordinate
                 width: 50
                 height: 50
+
                 sourceItem: Image {source: "qrc:/camion.png"
                     width: 25
                     height: 25
+
+                    anchors.centerIn: parent
                 }
+            }
+        }
+
+        MapItemView {
+                model: simulation.orders // Aquí se enlaza a tu Q_PROPERTY
+
+                delegate: MapQuickItem {
+
+                    coordinate: modelData
+
+                    anchorPoint.x: sourceItem.width / 2
+                    anchorPoint.y: sourceItem.height / 2
+
+                    sourceItem: Rectangle {
+                        width: 16
+                        height: 16
+                        radius: 8
+                        color: "red"
+                        border.color: "white"
+                        border.width: 2
+                    }
+                }
+        }
+
+        Repeater
+        {
+            model: simulation.trucks
+
+            delegate: MapRoute{
+                route: model.visualPath
+
+                line.width: 3
+
+                line.color: model.color
             }
         }
 
