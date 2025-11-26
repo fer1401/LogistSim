@@ -2,6 +2,7 @@
 #define RANDOMGENERATOR_H
 
 #include <random>
+#include <Product.h>
 
 class RandomGenerator
 {
@@ -13,7 +14,7 @@ public:
 
     int randomNumProducts();
     int randomQuantity();
-    int selectProduct(int catalogSize);
+    int selectProduct(std::vector<Product> catalog);
 
 private:
     std::random_device rd;  // seed source for the RNG

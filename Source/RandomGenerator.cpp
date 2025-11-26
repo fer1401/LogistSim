@@ -29,10 +29,17 @@ int RandomGenerator::randomQuantity()
     return quantityDist(gen);
 }
 
-int RandomGenerator::selectProduct(int catalogSize)
+int RandomGenerator::selectProduct(std::vector<Product> catalog)
 {
-    if (catalogSize <= 0)
+    if (catalog.size() <= 0)
         return 0;
-    std::uniform_int_distribution<int> productSelect(1, catalogSize);
+
+    std::vector<float> productPopularities;
+    for(const auto& product : catalog)
+    {
+        productPopularities.push_back(product.getPopularityScore());
+    }
+
+    std::discrete_distribution<int> productSelect(productPopularities.begin(), productPopularities.end());
     return productSelect(gen);
 }
