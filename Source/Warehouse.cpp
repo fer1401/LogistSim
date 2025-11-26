@@ -4,6 +4,10 @@
 #include <tuple>
 #include <limits>
 #include <graphalgorithms.hpp>
+#include <QTimer> // NEW: Include QTimer
+#include <random> // NEW: For std::geometric_distribution and engine
+
+
 
 Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, int numTrucks, const Inventory &initialInventory, QObject *parent)
     : QObject{parent}, m_coordinate(latitude, longitude), totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory)
@@ -11,6 +15,13 @@ Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, int 
     for (int i = 0; i < numTrucks; ++i) {
         dockedTrucks.append(new Truck(i + 1, m_coordinate, this));
     }
+
+    // NEW: Initialize the timer and connect the slot
+    processingTimer = new QTimer(this);
+    // Timer fires every 1000ms (1 second) representing one simulation "tick"
+    processingTimer->setInterval(200); 
+    connect(processingTimer, &QTimer::timeout, this, &Warehouse::advanceProcessing);
+    processingTimer->start(); 
 }
 
 Warehouse::~Warehouse()
@@ -99,24 +110,17 @@ bool Warehouse::fulfillNextOrder()
         return false;
     }
 
-    Order &nextOrder = pendingOrders.front();
+    Order nextOrder = std::move(pendingOrders.front());
+    pendingOrders.erase(pendingOrders.begin());
 
-    if (inventory.canFulfillOrder(nextOrder))
-    {
-        busyEmployees++;
+    busyEmployees++;
+    static std::random_device rd;
+    static std::mt19937 generator(rd()); 
+    std::geometric_distribution<int> distribution(0.05);
+    int requiredTicks = distribution(generator) + 1; 
+    ordersInProgress.emplace_back(std::move(nextOrder), requiredTicks); 
 
-        readyToShipOrders.push_back(std::move(nextOrder));
-
-        pendingOrders.erase(pendingOrders.begin());
-
-        busyEmployees--;
-
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 void Warehouse::fullfillAllPossibleOrders()
@@ -126,6 +130,39 @@ void Warehouse::fullfillAllPossibleOrders()
     {
         possibleToFulfill = fulfillNextOrder();
     }
+}
+
+void Warehouse::advanceProcessing()
+{
+    if (ordersInProgress.empty())
+    {
+        return;
+    }
+
+    for (auto it = ordersInProgress.rbegin(); it != ordersInProgress.rend();)
+    {
+        int &remainingTicks = std::get<1>(*it);
+        remainingTicks--;
+
+        if (remainingTicks <= 0)
+        {
+            // Order is complete
+            readyToShipOrders.push_back(std::move(std::get<0>(*it)));
+
+            it = std::vector<std::tuple<Order, int>>::reverse_iterator(ordersInProgress.erase(std::next(it).base()));
+
+            if (busyEmployees > 0)
+            {
+                busyEmployees--;
+            }
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    
+    fullfillAllPossibleOrders();
 }
 
 // Initial routes: one customer per route
@@ -170,7 +207,7 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     // Clark-Wright Savings heuristic implementation
     std::vector<Designar::Path<CityGraph>> resultPaths;
 
-    // If there are no pending orders, return empty
+    // If there are no ready-to-ship orders, return empty
     if (readyToShipOrders.empty())
         return resultPaths;
 
@@ -344,10 +381,29 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
         }
         else if (i_is_front && j_is_front)
         {
-            // reverse both then append
+            // reverse Ri, then append Rj
+            newOrders = Ri;
+            std::reverse(newOrders.begin(), newOrders.end());
+            // Need to be careful here. If i is front of Ri and j is front of Rj,
+            // the new path is (reversed Ri) + Rj or Ri + (reversed Rj) depending on which
+            // element (i or j) ends up connecting.
+            // Let's stick to the simplest, most common pattern: Ri then Rj (if ends match).
+            
+            // Standard Clark-Wright merge: join the non-warehouse ends.
+            // If i is front, and j is front, we need to join the end of Ri to the end of Rj.
+            // E.g., W -> ... -> end(Ri) <- i --- j -> end(Rj) <- ... <- W
+            // This is complex. The standard rule is: W-i-... and W-j-..., merge i-j.
+            // If i is front (Ri = i-...) and j is front (Rj = j-...), the only merge is i and j, 
+            // but this is not possible as i and j are the closest to W.
+            // The logic below assumes we are joining the end customer of one route to the start customer of the other.
+            
+            // Re-evaluating based on i/j being the *external* nodes of their routes:
+            // i_is_front && j_is_front: Join Ri's back to Rj's front (or vice versa), then reverse Ri. e.g., (W-...-j) + (i-...-W). Merge i-j. New path: W-...-j-i-...-W.
+            // To achieve this: Reverse Ri, then append Rj.
             newOrders = Ri;
             std::reverse(newOrders.begin(), newOrders.end());
             newOrders.insert(newOrders.end(), Rj.begin(), Rj.end());
+
         }
         else
         { // i_is_back && j_is_back
