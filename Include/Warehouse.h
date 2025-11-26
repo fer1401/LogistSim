@@ -5,10 +5,13 @@
 #include <QGeoCoordinate>
 #include <vector>
 #include <queue>
+#include <tuple> // NEW: For std::tuple
 #include "Inventory.h"
 #include "Order.h"
 #include "Truck.h"
 #include "City.h"
+
+class QTimer; // Forward declaration for QTimer
 
 class Warehouse : public QObject
 {
@@ -21,10 +24,16 @@ private:
     Inventory inventory;
     std::vector<Order> pendingOrders;
     std::vector<Order> readyToShipOrders;
+    std::vector<std::tuple<Order, int>> ordersInProgress; 
+    
     QList<Truck*> dockedTrucks;
     std::queue<Designar::Path<CityGraph>> truckRoutes;
 
     QGeoCoordinate m_coordinate;
+    QTimer *processingTimer = nullptr;
+
+private slots:
+    void advanceProcessing();
 
 signals:
     void trucksChanged();

@@ -7,32 +7,47 @@ const int simulationClockInterval = 200;
 
 Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
 {
+    
+    // Initialize products
+    productCatalog.emplace_back(Product(1, "Laptop", "HP Spectre x360", 1));
+    productCatalog.emplace_back(Product(2, "Smartphone", "Samsung Galaxy S21", 3));
+    productCatalog.emplace_back(Product(3, "Tablet", "iPad Pro", 5));
+    productCatalog.emplace_back(Product(4, "Headphones", "Sony WH-1000XM5 Noise Cancelling", 2));
+    productCatalog.emplace_back(Product(5, "Smart Watch", "Apple Watch Series 8", 4));
+    productCatalog.emplace_back(Product(6, "Gaming Console", "PlayStation 5 Digital Edition", 5));
+    productCatalog.emplace_back(Product(7, "E-reader", "Kindle Paperwhite (Latest Gen)", 1));
+    productCatalog.emplace_back(Product(8, "Coffee Maker", "Breville Barista Express Espresso Machine", 3));
+    productCatalog.emplace_back(Product(9, "Book", "'The Midnight Library' by Matt Haig", 2));
+    productCatalog.emplace_back(Product(10, "Robot Vacuum", "iRobot Roomba j7+ Self-Emptying", 4));
+    
     Inventory initialInventory;
-    initialInventory.addStock(1, 250);
-    initialInventory.addStock(2, 300);
-    initialInventory.addStock(3, 475);
+    initialInventory.addStock(1, 2500);
+    initialInventory.addStock(2, 3000);
+    initialInventory.addStock(3, 4750);
+    initialInventory.addStock(4, 3800);
+    initialInventory.addStock(5, 5100);
+    initialInventory.addStock(6, 2050);
+    initialInventory.addStock(7, 7500);
+    initialInventory.addStock(8, 1900);
+    initialInventory.addStock(9, 12000);
+    initialInventory.addStock(10, 4500);
 
-    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 10, 3, initialInventory, this);
-    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 5, 2, initialInventory, this);
+    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 25, 3, initialInventory, this);
+    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 15, 2, initialInventory, this);
 
     warehouses.append(warehouseA);
     warehouses.append(warehouseB);
-    
-    // Initialize products
-    productCatalog.emplace_back(Product(1, "Laptop", "HP Spectre x360"));
-    productCatalog.emplace_back(Product(2, "Smartphone", "Samsung Galaxy S21"));
-    productCatalog.emplace_back(Product(3, "Tablet", "iPad Pro"));
 
     simulationClock = new QTimer(this);
     QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
     simulationClock->setInterval(simulationClockInterval);
 
-    for (int i = 0; i < 75; ++i)
+    for (int i = 0; i < 150; ++i)
     {
         generateOrder();
     }
-
-    run();
+    assignOrdersToWarehouses();
+    shipOrders();
 
     emit warehousesChanged();
 }
@@ -45,32 +60,22 @@ Simulation::~Simulation()
 
 void Simulation::generateOrder()
 {
-    std::random_device rd;  // a seed source for the random number engine
-    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+    Order newOrder("Client_" + std::to_string(incomingOrders.size() + 1),
+                   rng.randomLatitude(),
+                   rng.randomLongitude());
 
-    std::uniform_real_distribution<> latDist(8.56837, 8.61000);
-    std::uniform_real_distribution<> lonDist(-71.16609, -71.12145);
-
-    Order newOrder("Client_" + std::to_string(incomingOrders.size() + 1), 
-                   latDist(gen), 
-                   lonDist(gen));
-    
-    std::uniform_int_distribution<> productSelect(1, productCatalog.size());
-    std::uniform_int_distribution<> numProducts(1, 2);
-    std::uniform_int_distribution<> quantity(1, 10);
-    
-    int numberOfProducts = numProducts(gen);
+    int numberOfProducts = rng.randomNumProducts();
     for (int i = 0; i < numberOfProducts; ++i)
     {
-        int productIndex = productSelect(gen) - 1; // Adjust for 0-based index
-        int qty = quantity(gen);
+        int productIndex = rng.selectProduct(productCatalog) + 1; // Adjust for 0-based index
+        int qty = rng.randomQuantity() + 1; // preserve previous +1 behavior
         newOrder.addProduct(productCatalog[productIndex], qty);
     }
 
     incomingOrders.push_back(newOrder);
 }
 
-void Simulation::run()
+void Simulation::assignOrdersToWarehouses()
 {
     // A* solver instance
     Designar::Astar<CityGraph, CityEdgeDistance, CityHeuristic> astar_solver;
@@ -119,11 +124,12 @@ void Simulation::run()
             simulationStats.incrementTotalOrdersFulfilled();
         }
     }
+}
 
-    // Update warehouses
+void Simulation::shipOrders()
+{
     for (auto& warehouse : warehouses)
     {
-        warehouse->fullfillAllPossibleOrders();
         auto [assignedTrips, distanceTravelled] = warehouse->shipOrders(city.getGraph());
         simulationStats.addDistanceTraveled(distanceTravelled);
         simulationStats.addTripsMade(assignedTrips);
@@ -186,7 +192,24 @@ void Simulation::simulationTick()
         }
         // Assign new routes if trucks are available
         warehouse->assignRoutes();
+        // Fulfill as many orders as possible
+        warehouse->fullfillAllPossibleOrders();
     }
+
+    if(simulationTime == nextOrderTime) // Generate a new order
+    {
+        generateOrder();
+        assignOrdersToWarehouses();
+        nextOrderTime += rng.randomOrderInterval();
+    }
+
+    if(simulationTime % 300 == 0) // Deliver orders
+    {
+        shipOrders();
+    }
+    
+    simulationTime++;
+    simulationStats.print(std::cout);
 
     emit trucksChanged();
     emit ordersChanged();

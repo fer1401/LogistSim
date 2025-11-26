@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QObject>
 #include <QList>
+#include "RandomGenerator.h"
 
 
 
@@ -26,7 +27,8 @@ public:
     explicit Simulation(QObject *parent = nullptr);
     ~Simulation();
     void generateOrder();
-    void run();
+    void assignOrdersToWarehouses();
+    void shipOrders();
     QTimer *getSimulationClock();
     void startClock();
     void stopClock();
@@ -48,6 +50,7 @@ signals:
 private:
     City city;
     QList<Warehouse*> warehouses;
+    RandomGenerator rng;
     QList<QObject*> visualTrucks;
     std::vector<Order> incomingOrders;
     std::vector<Product> productCatalog;
@@ -55,6 +58,8 @@ private:
     QVariantList visualOrders;
 
     Stats simulationStats;
+    int simulationTime = 0;
+    int nextOrderTime = 0;
 };
 
 #endif // SIMULATION_H
