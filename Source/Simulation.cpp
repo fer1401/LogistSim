@@ -32,8 +32,6 @@ Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
         generateOrder();
     }
 
-    run();
-
     emit warehousesChanged();
 }
 
@@ -70,7 +68,7 @@ void Simulation::generateOrder()
     incomingOrders.push_back(newOrder);
 }
 
-void Simulation::run()
+void Simulation::assignOrdersToWarehouses()
 {
     // A* solver instance
     Designar::Astar<CityGraph, CityEdgeDistance, CityHeuristic> astar_solver;
@@ -119,11 +117,12 @@ void Simulation::run()
             simulationStats.incrementTotalOrdersFulfilled();
         }
     }
+}
 
-    // Update warehouses
+void Simulation::shipOrders()
+{
     for (auto& warehouse : warehouses)
     {
-        warehouse->fullfillAllPossibleOrders();
         auto [assignedTrips, distanceTravelled] = warehouse->shipOrders(city.getGraph());
         simulationStats.addDistanceTraveled(distanceTravelled);
         simulationStats.addTripsMade(assignedTrips);
@@ -172,6 +171,8 @@ QVariantList Simulation::getVisualOrders()
 
 void Simulation::simulationTick()
 {
+    simulationTime++;
+
     for (const auto &warehouse : warehouses)
     {
         for (const auto &truck : warehouse->getDockedTrucks())
@@ -186,6 +187,19 @@ void Simulation::simulationTick()
         }
         // Assign new routes if trucks are available
         warehouse->assignRoutes();
+        // Fulfill as many orders as possible
+        warehouse->fullfillAllPossibleOrders();
+    }
+
+    if(simulationTime % 10 == 0) // Generate a new order
+    {
+        generateOrder();
+        assignOrdersToWarehouses();
+    }
+
+    if(simulationTime % 300 == 0) // Deliver orders
+    {
+        shipOrders();
     }
 
     emit trucksChanged();

@@ -80,6 +80,11 @@ float Warehouse::getCurrentLoad() const
 void Warehouse::addOrder(const Order &order)
 {
     pendingOrders.push_back(order);
+    // Deduct inventory for the order right away (to avoid overcommitting stock)
+    for (const auto &pair : order.getProductQuantities())
+    {
+        inventory.removeStock(pair.first, pair.second);
+    }
 }
 
 bool Warehouse::fulfillNextOrder()
@@ -99,11 +104,6 @@ bool Warehouse::fulfillNextOrder()
     if (inventory.canFulfillOrder(nextOrder))
     {
         busyEmployees++;
-
-        for (const auto &pair : nextOrder.getProductQuantities())
-        {
-            inventory.removeStock(pair.first, pair.second);
-        }
 
         readyToShipOrders.push_back(std::move(nextOrder));
 

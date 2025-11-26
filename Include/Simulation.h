@@ -26,7 +26,8 @@ public:
     explicit Simulation(QObject *parent = nullptr);
     ~Simulation();
     void generateOrder();
-    void run();
+    void assignOrdersToWarehouses();
+    void shipOrders();
     QTimer *getSimulationClock();
     void startClock();
     void stopClock();
@@ -55,6 +56,7 @@ private:
     QVariantList visualOrders;
 
     Stats simulationStats;
+    int simulationTime = 0;
 };
 
 #endif // SIMULATION_H
