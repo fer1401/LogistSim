@@ -196,14 +196,14 @@ void Simulation::simulationTick()
         warehouse->fullfillAllPossibleOrders();
     }
 
-    if(simulationTime == nextOrderTime) // Generate a new order
+    if(simulationTime >= nextOrderTime) // Generate a new order
     {
         generateOrder();
         assignOrdersToWarehouses();
         nextOrderTime += rng.randomOrderInterval();
     }
 
-    if(simulationTime % 300 == 0) // Deliver orders
+    if(simulationTime % 200 == 0) // Deliver orders
     {
         shipOrders();
     }

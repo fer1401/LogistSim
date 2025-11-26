@@ -6,7 +6,7 @@ RandomGenerator::RandomGenerator()
       lonDist(-71.20809, -71.12145),
       numProductsDist(1.5),
       quantityDist(0.7),
-      orderIntervalDist(0.1)
+      orderIntervalDist(0.025)
 {
 }
 
