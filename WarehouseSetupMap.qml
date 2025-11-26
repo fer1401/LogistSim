@@ -1,0 +1,89 @@
+import QtQuick 2.15
+import QtLocation 6.1
+import QtPositioning 5.15
+
+Item
+{
+    Map // Usamos Map como el componente raíz
+    {
+        id: setupMap
+        anchors.fill: parent
+        plugin: Plugin { name: "osm" }
+
+        // **Ajusta estas coordenadas** para que tu área de simulación sea visible
+        center: QtPositioning.coordinate(8.5945770, -71.1598334)
+        zoomLevel: 14
+
+        // --- Visualización de Almacenes Existentes ---
+        Repeater
+        {
+            model: simulation.warehouses // Usamos la propiedad expuesta desde C++
+
+            delegate: MapQuickItem {
+                coordinate: model.coordinate
+                width: 50
+                height: 50
+                sourceItem: Image {
+                    source: "qrc:/almacen.png"
+                    width: 50
+                    height: 50
+                }
+            }
+        }
+
+        MapQuickItem
+        {
+            id: selector
+
+            coordinate: QtPositioning.coordinate(8.5945770, -71.1598334)
+            width: 50
+            height: 50
+            sourceItem: Image {
+                source: "qrc:/almacen.png"
+                width: 50
+                height: 50
+            }
+        }
+
+        DragHandler
+        {
+            id: setupMapDragHandler
+            target: setupMap
+            onTranslationChanged: (delta) => setupMap.pan(-delta.x, -delta.y)
+        }
+
+        MouseArea
+        {
+            anchors.fill: parent
+            hoverEnabled: true
+
+            onWheel: function(mouse) {
+                if (mouse.angleDelta.y !== 0)
+                {
+                    let newZoom = setupMap.zoomLevel + (mouse.angleDelta.y > 0 ? 0.5 : -0.5);
+                    setupMap.zoomLevel = Math.max(2, Math.min(20, newZoom));
+                }
+                mouse.accepted = true;
+            }
+
+            onDoubleClicked: {
+                setupMap.zoomTo(setupMap.zoomLevel + 1, mouse.x, mouse.y);
+            }
+
+            // Solo para detectar el clic
+            onClicked: (mouse) => {
+                // 1. Convertir coordenadas de píxeles (mouse.x, mouse.y) a coordenadas geográficas (lat, lon)
+                const newCoordinate = setupMap.toCoordinate(Qt.point(mouse.x, mouse.y));
+
+                selector.coordinate = newCoordinate;
+
+                simulation.setNewCoord(newCoordinate);
+
+                console.log("Se registro un clic en: ", newCoordinate.latitude, newCoordinate.longitude);
+
+                mouse.accepted = true; // Consumir el evento de clic
+            }
+        }
+    }
+}
+

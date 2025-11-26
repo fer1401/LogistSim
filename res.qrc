@@ -4,5 +4,6 @@
         <file>map.osm</file>
         <file>camion.png</file>
         <file>almacen.png</file>
+        <file>WarehouseSetupMap.qml</file>
     </qresource>
 </RCC>

@@ -32,7 +32,6 @@ public:
 
     QString getColor();
 
-    // Función que la simulación en C++ llamará para mover el camión
     Q_INVOKABLE void updatePosition(double longitude, double latitude);
 
 public slots:
@@ -40,7 +39,6 @@ public slots:
     void setVisualPath(const QGeoRoute &newVisualPath);
 
 signals:
-    // 2. Señal emitida cada vez que la posición cambie.
     void coordinateChanged();
     void visualPathChanged();
     void colorChanged();
@@ -55,4 +53,4 @@ private:
     QString color;
 };
 
-#endif // TRUCK_H
+#endif

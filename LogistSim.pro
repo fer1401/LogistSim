@@ -18,9 +18,12 @@ INCLUDEPATH += /usr/include/
 
 
 SOURCES += \
+    Source/warehouseedit.cpp \
     Source/City.cpp \
     Source/CountHandler.cpp \
     Source/MapPoint.cpp \
+    Source/Settings.cpp \
+    Source/Stockspinboxdelegate.cpp \
     Source/Street.cpp \
     Source/Truck.cpp \
     Source/main.cpp \
@@ -35,6 +38,7 @@ SOURCES += \
     Source/Welcomedialog.cpp \
 
 HEADERS += \
+    Include/warehouseedit.h \
     Include/City.h \
     Include/CountHandler.h \
     Include/MapPoint.h \
@@ -49,10 +53,14 @@ HEADERS += \
     Include/Stats.h \
     Include/RandomGenerator.h \
     Include/Welcomedialog.h \
+    Include/Settings.h \
+    Include/Stockspinboxdelegate.h
 
 FORMS += \
     Forms/mainwindow.ui \
+    Forms/warehouseedit.ui \
     Forms/welcomedialog.ui \
+    Forms/settings.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -64,3 +72,5 @@ LIBS += -lprotobuf -lbz2 -lexpat -lz -lgdal -L$${DSG}/lib -lDesignar -lboost_ios
 
 RESOURCES += \
     res.qrc
+
+DISTFILES += \
