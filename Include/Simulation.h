@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QObject>
 #include <QList>
+#include "RandomGenerator.h"
 
 
 
@@ -49,6 +50,7 @@ signals:
 private:
     City city;
     QList<Warehouse*> warehouses;
+    RandomGenerator rng;
     QList<QObject*> visualTrucks;
     std::vector<Order> incomingOrders;
     std::vector<Product> productCatalog;

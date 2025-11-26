@@ -43,25 +43,15 @@ Simulation::~Simulation()
 
 void Simulation::generateOrder()
 {
-    std::random_device rd;  // a seed source for the random number engine
-    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+    Order newOrder("Client_" + std::to_string(incomingOrders.size() + 1),
+                   rng.randomLatitude(),
+                   rng.randomLongitude());
 
-    std::uniform_real_distribution<> latDist(8.56837, 8.61000);
-    std::uniform_real_distribution<> lonDist(-71.16609, -71.12145);
-
-    Order newOrder("Client_" + std::to_string(incomingOrders.size() + 1), 
-                   latDist(gen), 
-                   lonDist(gen));
-    
-    std::uniform_int_distribution<> productSelect(1, productCatalog.size());
-    std::poisson_distribution<> numProducts(1.5);
-    std::geometric_distribution<> quantity(0.7);
-    
-    int numberOfProducts = numProducts(gen);
+    int numberOfProducts = rng.randomNumProducts();
     for (int i = 0; i < numberOfProducts; ++i)
     {
-        int productIndex = productSelect(gen) - 1; // Adjust for 0-based index
-        int qty = quantity(gen) + 1;;
+        int productIndex = rng.selectProduct(static_cast<int>(productCatalog.size())) - 1; // Adjust for 0-based index
+        int qty = rng.randomQuantity() + 1; // preserve previous +1 behavior
         newOrder.addProduct(productCatalog[productIndex], qty);
     }
 
