@@ -49,11 +49,12 @@ These libraries must be installed prior to building the project:
 | **zlib** | Compression | Link with `-lz` |
 | **bzip2** | Compression | Link with `-lbz2` |
 | **Expat** | XML parsing | Link with `-lexpat` |
+| **Osmium** | OpenStreetMap data handling | Link with `-losmium` |
 
 On Ubuntu/Debian, most can be installed via:
 
 ```bash
-sudo apt install libgdal-dev libprotobuf-dev libboost-iostreams-dev zlib1g-dev libbz2-dev libexpat1-dev
+sudo apt install libgdal-dev libprotobuf-dev libboost-iostreams-dev zlib1g-dev libbz2-dev libexpat1-dev libosmium2-dev
 ```
 
 ## 🗂️ Setting Up DeSiGNAR Path
