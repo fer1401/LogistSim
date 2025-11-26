@@ -32,8 +32,8 @@ Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
     initialInventory.addStock(9, 12000);
     initialInventory.addStock(10, 4500);
 
-    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 25, 3, initialInventory, this);
-    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 15, 2, initialInventory, this);
+    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 25, 3, "Orange", initialInventory, this);
+    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 15, 2, "Purple", initialInventory, this);
 
     warehouses.append(warehouseA);
     warehouses.append(warehouseB);
