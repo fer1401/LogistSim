@@ -5,10 +5,12 @@
 #include <limits>
 #include <graphalgorithms.hpp>
 
-Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, const Inventory &initialInventory, QObject *parent)
+Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, int numTrucks, const Inventory &initialInventory, QObject *parent)
     : QObject{parent}, m_coordinate(latitude, longitude), totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory)
 {
-    dockedTrucks.append(new Truck(1, m_coordinate, "Purple", this));
+    for (int i = 0; i < numTrucks; ++i) {
+        dockedTrucks.append(new Truck(i + 1, m_coordinate, "Purple", this));
+    }
 }
 
 Warehouse::~Warehouse()
@@ -64,6 +66,15 @@ void Warehouse::dockTruck(Truck *truck)
 const Inventory &Warehouse::getInventory() const
 {
     return inventory;
+}
+
+float Warehouse::getCurrentLoad() const
+{
+    float load = 0.0f;
+    load += 1000 * (pendingOrders.size() + readyToShipOrders.size() * 0.5f); // order backlog
+    load += 1000 * (exp(busyEmployees/totalEmployees) - 1); // employee utilization
+    load += 100 * exp(-dockedTrucks.size()); // truck availability
+    return load;
 }
 
 void Warehouse::addOrder(const Order &order)
@@ -125,18 +136,20 @@ struct Route
     bool active = true;
 };
 
-void Warehouse::shipOrders(CityGraph &city)
+std::pair<int, float> Warehouse::shipOrders(CityGraph &city)
 {
     auto routes = planTruckRoutes(city);
     for (const auto &route : routes)
     {
         truckRoutes.push(route);
     }
-    assignRoutes();
+    return assignRoutes();
 }
 
-void Warehouse::assignRoutes()
+std::pair<int, float> Warehouse::assignRoutes()
 {
+    int assignedCount = 0;
+    float distanceTraveled = 0.0f;
     for (auto &truckPtr : dockedTrucks)
     {
         Truck *truck = truckPtr;
@@ -145,8 +158,11 @@ void Warehouse::assignRoutes()
             Designar::Path<CityGraph> route = truckRoutes.front();
             truckRoutes.pop();
             truck->assignRoute(route);
+            assignedCount++;
+            distanceTraveled += path_distance(route);
         }
     }
+    return std::make_pair(assignedCount, distanceTraveled);
 }
 
 std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &city)
@@ -178,16 +194,6 @@ std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &cit
     for (size_t i = 0; i < n; ++i)
         custNode[i] = find_nearest_node(city, readyToShipOrders[i].getLatitude(), readyToShipOrders[i].getLongitude());
 
-    // Helper to compute path distance by summing arc lengths
-    auto path_distance = [](const Designar::Path<CityGraph> &p) -> double {
-        double sum = 0.0;
-        p.for_each([&sum](auto node, auto arc)
-        {
-            if (arc)
-                sum += arc->get_info().getLength();
-        });
-        return sum;
-    };
 
     // Cache A* paths so we don't recompute them when assembling final routes.
     // warehouse -> customer

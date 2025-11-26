@@ -61,6 +61,17 @@ inline CityGraph::Node* find_nearest_node(CityGraph &city, double lat, double lo
     return best;
 }
 
+// Helper to compute path distance by summing arc lengths
+inline double path_distance(const Designar::Path<CityGraph> &p) {
+    double sum = 0.0;
+    p.for_each([&sum](auto node, auto arc)
+    {
+        if (arc)
+            sum += arc->get_info().getLength();
+    });
+    return sum;
+};
+
 class City
 {
 private:

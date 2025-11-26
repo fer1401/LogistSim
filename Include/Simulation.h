@@ -5,9 +5,12 @@
 #include <Order.h>
 #include <Product.h>
 #include <Warehouse.h>
+#include <Stats.h>
 #include <QTimer>
 #include <QObject>
 #include <QList>
+
+
 
 class Simulation : public QObject
 {
@@ -50,6 +53,8 @@ private:
     std::vector<Product> productCatalog;
     QTimer *simulationClock;
     QVariantList visualOrders;
+
+    Stats simulationStats;
 };
 
 #endif // SIMULATION_H

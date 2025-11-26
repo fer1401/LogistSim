@@ -1,18 +1,19 @@
 #include "Simulation.h"
 #include "Inventory.h"
 #include "graphalgorithms.hpp"
+#include <limits>
 
 const int simulationClockInterval = 200;
 
 Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
 {
     Inventory initialInventory;
-    initialInventory.addStock(1, 50);
-    initialInventory.addStock(2, 100);
-    initialInventory.addStock(3, 75);
+    initialInventory.addStock(1, 250);
+    initialInventory.addStock(2, 300);
+    initialInventory.addStock(3, 475);
 
-    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 10, initialInventory, this);
-    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 5, initialInventory, this);
+    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 10, 3, initialInventory, this);
+    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 5, 2, initialInventory, this);
 
     warehouses.append(warehouseA);
     warehouses.append(warehouseB);
@@ -26,7 +27,7 @@ Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
     QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
     simulationClock->setInterval(simulationClockInterval);
 
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < 75; ++i)
     {
         generateOrder();
     }
@@ -74,13 +75,20 @@ void Simulation::run()
     // A* solver instance
     Designar::Astar<CityGraph, CityEdgeDistance, CityHeuristic> astar_solver;
     // Process incoming orders
-    for (auto& order : incomingOrders)
+    for (int i = 0; i < incomingOrders.size(); ++i)
     {
+        simulationStats.incrementTotalOrdersReceived();
+
+        Order order = incomingOrders[i];
+
         CityGraph::Node *customerNode = find_nearest_node(city.getGraph(), order.getLatitude(), order.getLongitude());
-        bool fulfilled = false;
+        
+        // Variables to track the best (closest) fulfilling warehouse found so far
+        Warehouse* bestWarehouse = nullptr;
+        double bestCost = std::numeric_limits<double>::max();
+
         for (auto& warehouse : warehouses)
         {
-            
             CityGraph::Node *warehouseNode = find_nearest_node(city.getGraph(), warehouse->getCoordinate().latitude(), warehouse->getCoordinate().longitude());
             Designar::Path<CityGraph> p_w_c = astar_solver.search_min_path(city.getGraph(), warehouseNode, customerNode);
             Designar::Path<CityGraph> p_c_w = astar_solver.search_min_path(city.getGraph(), customerNode, warehouseNode);
@@ -92,25 +100,33 @@ void Simulation::run()
             
             if (warehouse->getInventory().canFulfillOrder(order))
             {
-                warehouse->addOrder(order);
-                fulfilled = true;
-                visualOrders.append(QVariant::fromValue(QGeoCoordinate(customerNode->get_info().getLatitude(), customerNode->get_info().getLongitude())));
-
-                break;
-            }
+                double cost = path_distance(p_w_c) + path_distance(p_c_w) + warehouse->getCurrentLoad();
+                // Check if this warehouse is closer than the current best
+                if (cost < bestCost)
+                {
+                    bestCost = cost;
+                    bestWarehouse = warehouse;
+                }
+            }            
         }
-        if (!fulfilled)
+
+        if (bestWarehouse != nullptr)
         {
-            // Handle unfulfillable order (e.g., log it, notify user, etc.)
+            bestWarehouse->addOrder(order);
+            visualOrders.append(QVariant::fromValue(QGeoCoordinate(customerNode->get_info().getLatitude(), customerNode->get_info().getLongitude())));
+            incomingOrders.erase(incomingOrders.begin() + i);
+            i--; // Adjust index after erasure
+            simulationStats.incrementTotalOrdersFulfilled();
         }
     }
-    incomingOrders.clear();
 
     // Update warehouses
     for (auto& warehouse : warehouses)
     {
         warehouse->fullfillAllPossibleOrders();
-        warehouse->shipOrders(city.getGraph());
+        auto [assignedTrips, distanceTravelled] = warehouse->shipOrders(city.getGraph());
+        simulationStats.addDistanceTraveled(distanceTravelled);
+        simulationStats.addTripsMade(assignedTrips);
     }
 }
 
@@ -162,8 +178,14 @@ void Simulation::simulationTick()
         {
             truck->updateRoutePosition();
 
-            std::remove_if(visualOrders.begin(), visualOrders.end(), [&truck](QVariant a){ return truck->getCoordinate() == a.value<QGeoCoordinate>() ;  });
+            auto newEnd = std::remove_if(visualOrders.begin(), visualOrders.end(), [&truck](QVariant a) { return truck->getCoordinate() == a.value<QGeoCoordinate>(); });
+            int elementsDeleted = std::distance(newEnd, visualOrders.end());
+            visualOrders.erase(newEnd, visualOrders.end());
+            if (elementsDeleted > 0)
+                simulationStats.addOrdersShipped(elementsDeleted);
         }
+        // Assign new routes if trucks are available
+        warehouse->assignRoutes();
     }
 
     emit trucksChanged();
