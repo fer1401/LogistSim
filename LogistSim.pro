@@ -23,7 +23,6 @@ SOURCES += \
     Source/CountHandler.cpp \
     Source/MapPoint.cpp \
     Source/Settings.cpp \
-    Source/Stockspinboxdelegate.cpp \
     Source/Street.cpp \
     Source/Truck.cpp \
     Source/main.cpp \
@@ -53,8 +52,7 @@ HEADERS += \
     Include/Stats.h \
     Include/RandomGenerator.h \
     Include/Welcomedialog.h \
-    Include/Settings.h \
-    Include/Stockspinboxdelegate.h
+    Include/Settings.h
 
 FORMS += \
     Forms/mainwindow.ui \

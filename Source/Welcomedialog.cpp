@@ -32,3 +32,8 @@ void WelcomeDialog::on_StartButton_clicked()
     this->close();
 }
 
+void WelcomeDialog::on_ExitButton_clicked()
+{
+    this->close();
+}
+

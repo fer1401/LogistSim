@@ -6,7 +6,6 @@
 #include <QStandardItemModel>
 #include "Simulation.h"
 #include "Warehouse.h"
-#include "Stockspinboxdelegate.h"
 
 namespace Ui {
 class warehouseEdit;
@@ -31,10 +30,10 @@ private slots:
 private:
     Ui::warehouseEdit *ui;
     Simulation *simulation;
-    Warehouse *currentWarehouse; // El almacén actual
-    QStandardItemModel *inventoryModel; // Modelo para la tabla de inventario
+    Warehouse *currentWarehouse;
+    QStandardItemModel *inventoryModel;
 
-    void setupInventoryTable(); // Función para poblar la tabla
+    void setupInventoryTable();
 };
 
 #endif // WAREHOUSEEDIT_H

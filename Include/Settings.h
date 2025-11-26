@@ -44,4 +44,4 @@ private:
     void loadWarehouses();
 };
 
-#endif // SETTINGS_H
+#endif

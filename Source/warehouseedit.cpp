@@ -7,7 +7,6 @@ warehouseEdit::warehouseEdit(Warehouse *warehouseToEdit, Simulation *sim, QWidge
 {
     ui->setupUi(this);
 
-    // Inicializar el modelo y la tabla
     inventoryModel = new QStandardItemModel(this);
     ui->tableView->setModel(inventoryModel);
 
@@ -27,9 +26,6 @@ warehouseEdit::warehouseEdit(Warehouse *warehouseToEdit, Simulation *sim, QWidge
 
     setupInventoryTable();
 
-    ui->tableView->setItemDelegateForColumn(3, new Stockspinboxdelegate(this));
-
-    // Configuración visual
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->verticalHeader()->hide();
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -44,16 +40,13 @@ void warehouseEdit::setupInventoryTable()
 {
     inventoryModel->clear();
 
-    // 1. Establecer las cabeceras
     QStringList headers = {"ID", "Nombre", "Descripción", "Stock"};
     inventoryModel->setHorizontalHeaderLabels(headers);
     inventoryModel->setColumnCount(headers.size());
 
-    // Referencias
     const auto& catalog = simulation->getProductCatalog();
     const Inventory& inventory = currentWarehouse->getInventory();
 
-    // 2. Llenar la tabla
     for (const auto& product : catalog)
     {
         int productID = product.getId();
@@ -61,24 +54,19 @@ void warehouseEdit::setupInventoryTable()
 
         QList<QStandardItem*> rowItems;
 
-        // Columna 0: ID (No editable)
         QStandardItem *idItem = new QStandardItem(QString::number(productID));
         idItem->setFlags(idItem->flags() & ~Qt::ItemIsEditable);
 
-        // Columna 1: Nombre (No editable)
         QStandardItem *nameItem = new QStandardItem(QString::fromStdString(product.getName()));
         nameItem->setFlags(nameItem->flags() & ~Qt::ItemIsEditable);
 
-        // Columna 2: Descripción (No editable)
         QStandardItem *descItem = new QStandardItem(QString::fromStdString(product.getDescription()));
         descItem->setFlags(descItem->flags() & ~Qt::ItemIsEditable);
 
-        // Columna 3: Stock (Editable por el delegado)
         QStandardItem *stockItem = new QStandardItem(QString::number(currentStock));
-        // ⭐ Clave: Hacer que sea editable para que el delegado funcione
+
         stockItem->setFlags(stockItem->flags() | Qt::ItemIsEditable);
 
-        // Guardar el ID del producto en el rol de datos para saber qué producto editar
         stockItem->setData(productID, Qt::UserRole + 1);
 
         rowItems << idItem << nameItem << descItem << stockItem;
@@ -88,7 +76,6 @@ void warehouseEdit::setupInventoryTable()
 
 void warehouseEdit::on_pushButton_clicked()
 {
-    // 1. Obtener el índice de la fila seleccionada
     QModelIndexList selectedRows = ui->tableView->selectionModel()->selectedRows();
 
     if (selectedRows.isEmpty()) {
@@ -96,12 +83,10 @@ void warehouseEdit::on_pushButton_clicked()
         return;
     }
 
-    // 2. Usar la primera fila seleccionada (índice 0 en la lista)
     QModelIndex selectedIndex = selectedRows.at(0);
 
-    // 3. Obtener el ID del producto (está en la columna 0)
     bool ok;
-    // Usamos productModel directamente ya que es el modelo de ui->tableView
+
     int idToAdd = inventoryModel->data(selectedIndex.sibling(selectedIndex.row(), 0)).toInt(&ok);
 
     if (!ok) {
@@ -116,7 +101,7 @@ void warehouseEdit::on_pushButton_clicked()
                                   tr("Ingrese la cantidad a agregar"),
                                   0, 1, 1000, 1, &ok);
 
-    if (!ok) return; // Usuario canceló
+    if (!ok) return;
 
     inventory.addStock(idToAdd, quantity);
 
@@ -132,7 +117,7 @@ void warehouseEdit::on_pushButton_2_clicked()
                                         tr("Ingrese la cantidad de camiones en el almacen"),
                                         0, 1, 20, 1, &ok);
 
-    if (!ok) return; // Usuario canceló
+    if (!ok) return;
 
     currentWarehouse->getDockedTrucks().clear();
 
@@ -159,7 +144,7 @@ void warehouseEdit::on_pushButton_3_clicked()
                                         tr("Ingrese la cantidad de empleados en el almacen"),
                                         0, 1, 20, 1, &ok);
 
-    if (!ok) return; // Usuario canceló
+    if (!ok) return;
 
     currentWarehouse->setTotalEmployees(quantity);
 

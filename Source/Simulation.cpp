@@ -217,29 +217,23 @@ void Simulation::simulationTick()
 
 bool Simulation::addNewWarehouse(double latitude, double longitude)
 {
-    // Verificar el límite de almacenes
     if (warehouses.size() >= MAX_WAREHOUSES) {
         qWarning("Maximum warehouse limit reached (%d).", MAX_WAREHOUSES);
         emit warehouseLimitReached();
         return false;
     }
 
-    // Definir un inventario inicial por defecto (ajusta los IDs de producto y cantidades)
     Inventory initialInventory;
     initialInventory.addStock(1, 100);
     initialInventory.addStock(2, 100);
     initialInventory.addStock(3, 100);
 
-    // Crear el nuevo almacén y agregarlo a la QList<Warehouse*>
-    // Suponiendo que el constructor es: Warehouse(lat, lon, truckCapacity, inventory, parent)
     Warehouse *newWarehouse = new Warehouse(latitude, longitude, 10, 5, "Blue", initialInventory, this);
 
-    // ESTE ES EL PASO CLAVE: Agregar a la lista de Warehouse*
     warehouses.append(newWarehouse);
 
     qDebug()<<"Agregado";
 
-    // Notificar a QML que la lista ha cambiado, actualizando el Repeater
     emit warehousesChanged();
 
     return true;
@@ -254,15 +248,13 @@ void Simulation::setNewCoord(const QGeoCoordinate &coord)
 
 bool Simulation::addNewProduct(int id, const QString &name, const QString &description)
 {
-    // 1. Verificar si el ID ya existe (los IDs deben ser únicos)
-    for (const auto& product : productCatalog) {
-        if (product.getId() == id) {
-            return false; // El ID ya existe
+    for (const auto& product : productCatalog)
+    {
+        if (product.getId() == id)
+        {
+            return false;
         }
     }
-
-    // 2. Crear el nuevo producto y agregarlo al vector
-    // Convertir de QString a std::string antes de la adición
     productCatalog.emplace_back(Product(id, name.toStdString(), description.toStdString(), 5));
 
     return true;
@@ -270,21 +262,18 @@ bool Simulation::addNewProduct(int id, const QString &name, const QString &descr
 
 bool Simulation::deleteProduct(int id)
 {
-    // 1. Usar std::remove_if para mover el producto a eliminar al final del vector
     auto newEnd = std::remove_if(productCatalog.begin(), productCatalog.end(),
                                  [id](const Product& p) {
                                      return p.getId() == id;
                                  });
-
-    // 2. Si el iterador newEnd es diferente al begin, significa que se encontró y eliminó un elemento
-    if (newEnd != productCatalog.end()) {
-        // 3. Eliminar físicamente el elemento (truncate)
+    if (newEnd != productCatalog.end())
+    {
         productCatalog.erase(newEnd, productCatalog.end());
 
         return true;
     }
 
-    return false; // Producto no encontrado
+    return false;
 }
 
 QList<Warehouse *> Simulation::getWarehouses()

@@ -26,6 +26,8 @@ private slots:
 
     void on_StartButton_clicked();
 
+    void on_ExitButton_clicked();
+
 private:
     Ui::WelcomeDialog *ui;
     Simulation *simulation;

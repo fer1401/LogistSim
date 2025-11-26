@@ -79,4 +79,4 @@ private:
     int nextOrderTime = 0;
 };
 
-#endif // SIMULATION_H
+#endif
