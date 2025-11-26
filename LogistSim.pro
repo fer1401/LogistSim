@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
-DSG = /home/luisa/DeSiGNAR-2.0.0
+DSG = /home/jesus/Documentos/DeSiGNAR
 
 INCLUDEPATH += $${DSG}/include ../
 
@@ -18,6 +18,7 @@ INCLUDEPATH += /usr/include/
 
 
 SOURCES += \
+    Source/warehouseedit.cpp \
     Source/City.cpp \
     Source/CountHandler.cpp \
     Source/MapPoint.cpp \
@@ -25,7 +26,6 @@ SOURCES += \
     Source/Stockspinboxdelegate.cpp \
     Source/Street.cpp \
     Source/Truck.cpp \
-    Source/Warehouseedit.cpp \
     Source/main.cpp \
     Source/mainwindow.cpp \
     Source/Product.cpp \
@@ -36,6 +36,7 @@ SOURCES += \
     Source/Welcomedialog.cpp \
 
 HEADERS += \
+    Include/warehouseedit.h \
     Include/City.h \
     Include/CountHandler.h \
     Include/MapPoint.h \
@@ -49,14 +50,13 @@ HEADERS += \
     Include/Simulation.h \
     Include/Welcomedialog.h \
     Include/Settings.h \
-    Include/Stockspinboxdelegate.h \
-    Include/Warehouseedit.h
+    Include/Stockspinboxdelegate.h
 
 FORMS += \
     Forms/mainwindow.ui \
+    Forms/warehouseedit.ui \
     Forms/welcomedialog.ui \
-    Forms/settings.ui \
-    Forms/Warehouseedit.ui
+    Forms/settings.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -41,7 +41,7 @@ int Warehouse::getAvailableEmployees() const
     return totalEmployees - busyEmployees;
 }
 
-const QList<Truck *> Warehouse::getDockedTrucks()
+QList<Truck *> &Warehouse::getDockedTrucks()
 {
     return dockedTrucks;
 }
@@ -61,7 +61,7 @@ void Warehouse::dockTruck(Truck *truck)
     dockedTrucks.append(truck);
 }
 
-const Inventory &Warehouse::getInventory() const
+Inventory &Warehouse::getInventory()
 {
     return inventory;
 }
@@ -202,6 +202,11 @@ void Warehouse::assignRoutes()
             truck->assignRoute(route);
         }
     }
+}
+
+void Warehouse::setTotalEmployees(int employees)
+{
+    totalEmployees = employees;
 }
 
 std::vector<Designar::Path<CityGraph>> Warehouse::planTruckRoutes(CityGraph &city)

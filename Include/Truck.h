@@ -25,14 +25,12 @@ public:
     void clearRoute();
     void updateRoutePosition();
 
-    // Función que la simulación en C++ llamará para mover el camión
     Q_INVOKABLE void updatePosition(double longitude, double latitude);
 
 public slots:
     void setCoordinate(const QGeoCoordinate &newCoordinate);
 
 signals:
-    // 2. Señal emitida cada vez que la posición cambie.
     void coordinateChanged();
 
 private:
@@ -43,4 +41,4 @@ private:
     Designar::nat_t routePosition;
 };
 
-#endif // TRUCK_H
+#endif

@@ -176,6 +176,13 @@ bool Simulation::addNewWarehouse(double latitude, double longitude)
     return true;
 }
 
+void Simulation::setNewCoord(const QGeoCoordinate &coord)
+{
+    setNewCoordinate(coord);
+
+    emit newCoordinateChanged();
+}
+
 bool Simulation::addNewProduct(int id, const QString &name, const QString &description)
 {
     // 1. Verificar si el ID ya existe (los IDs deben ser únicos)
@@ -214,4 +221,14 @@ bool Simulation::deleteProduct(int id)
 QList<Warehouse *> Simulation::getWarehouses()
 {
     return warehouses;
+}
+
+QGeoCoordinate Simulation::getNewCoordinate()
+{
+    return newCoordinate;
+}
+
+void Simulation::setNewCoordinate(QGeoCoordinate coord)
+{
+    newCoordinate = coord;
 }

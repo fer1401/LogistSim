@@ -31,6 +31,20 @@ Item
             }
         }
 
+        MapQuickItem
+        {
+            id: selector
+
+            coordinate: QtPositioning.coordinate(8.5945770, -71.1598334)
+            width: 50
+            height: 50
+            sourceItem: Image {
+                source: "qrc:/almacen.png"
+                width: 50
+                height: 50
+            }
+        }
+
         DragHandler
         {
             id: setupMapDragHandler
@@ -61,15 +75,11 @@ Item
                 // 1. Convertir coordenadas de píxeles (mouse.x, mouse.y) a coordenadas geográficas (lat, lon)
                 const newCoordinate = setupMap.toCoordinate(Qt.point(mouse.x, mouse.y));
 
-                // 2. Llamar al método de C++ para crear el almacén
-                var success = simulation.addNewWarehouse(newCoordinate.latitude, newCoordinate.longitude);
+                selector.coordinate = newCoordinate;
+
+                simulation.setNewCoord(newCoordinate);
 
                 console.log("Se registro un clic en: ", newCoordinate.latitude, newCoordinate.longitude);
-
-                if (!success) {
-                    // Notificar al usuario (puedes usar un componente de notificación QML)
-                    console.log("Error: No se pueden agregar más de 10 almacenes.");
-                }
 
                 mouse.accepted = true; // Consumir el evento de clic
             }

@@ -1,5 +1,5 @@
 #include "Warehouseedit.h"
-#include "ui_Warehouseedit.h"
+#include "ui_warehouseedit.h"
 #include <QDebug>
 
 Warehouseedit::Warehouseedit(Warehouse *warehouseToEdit, Simulation *sim, QWidget *parent)

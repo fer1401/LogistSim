@@ -39,17 +39,19 @@ public:
     int getTotalEmployees() const;
     int getBusyEmployees() const;
     int getAvailableEmployees() const;
-    const QList<Truck*> getDockedTrucks();
+    QList<Truck*> &getDockedTrucks();
     const std::vector<Order>& getPendingOrders() const;
     const std::vector<Order>& getReadyToShipOrders() const;
     void dockTruck(Truck *truck);
-    const Inventory& getInventory() const;
+    Inventory& getInventory();
 
     void addOrder(const Order& order);
     bool fulfillNextOrder();
     void fullfillAllPossibleOrders();
     void shipOrders(CityGraph& city);
     void assignRoutes();
+    void setTotalEmployees(int employees);
+
     std::vector<Designar::Path<CityGraph>> planTruckRoutes(CityGraph& city);
 };
 
