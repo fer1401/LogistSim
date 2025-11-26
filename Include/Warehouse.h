@@ -59,8 +59,6 @@ public:
     void addOrder(const Order& order);
     bool fulfillNextOrder();
     void fullfillAllPossibleOrders();
-    void shipOrders(CityGraph& city);
-    void assignRoutes();
     void setTotalEmployees(int employees);
 
     std::pair<int, float> shipOrders(CityGraph& city);

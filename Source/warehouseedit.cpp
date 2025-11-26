@@ -138,7 +138,7 @@ void warehouseEdit::on_pushButton_2_clicked()
 
     for (int i = 1; i <= quantity; ++i)
     {
-        currentWarehouse->dockTruck(new Truck(i, currentWarehouse->getCoordinate(), currentWarehouse));
+        currentWarehouse->dockTruck(new Truck(i, currentWarehouse->getCoordinate(), "Blue", currentWarehouse));
     }
 
     QString trucksString;

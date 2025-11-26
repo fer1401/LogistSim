@@ -232,7 +232,7 @@ bool Simulation::addNewWarehouse(double latitude, double longitude)
 
     // Crear el nuevo almacén y agregarlo a la QList<Warehouse*>
     // Suponiendo que el constructor es: Warehouse(lat, lon, truckCapacity, inventory, parent)
-    Warehouse *newWarehouse = new Warehouse(latitude, longitude, 10, initialInventory, this);
+    Warehouse *newWarehouse = new Warehouse(latitude, longitude, 10, 5, "Blue", initialInventory, this);
 
     // ESTE ES EL PASO CLAVE: Agregar a la lista de Warehouse*
     warehouses.append(newWarehouse);
@@ -263,7 +263,7 @@ bool Simulation::addNewProduct(int id, const QString &name, const QString &descr
 
     // 2. Crear el nuevo producto y agregarlo al vector
     // Convertir de QString a std::string antes de la adición
-    productCatalog.emplace_back(Product(id, name.toStdString(), description.toStdString()));
+    productCatalog.emplace_back(Product(id, name.toStdString(), description.toStdString(), 5));
 
     return true;
 }
