@@ -7,27 +7,42 @@ const int simulationClockInterval = 200;
 
 Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
 {
-    Inventory initialInventory;
-    initialInventory.addStock(1, 250);
-    initialInventory.addStock(2, 300);
-    initialInventory.addStock(3, 475);
-
-    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 10, 3, initialInventory, this);
-    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 5, 2, initialInventory, this);
-
-    warehouses.append(warehouseA);
-    warehouses.append(warehouseB);
     
     // Initialize products
     productCatalog.emplace_back(Product(1, "Laptop", "HP Spectre x360", 1));
     productCatalog.emplace_back(Product(2, "Smartphone", "Samsung Galaxy S21", 3));
     productCatalog.emplace_back(Product(3, "Tablet", "iPad Pro", 5));
+    productCatalog.emplace_back(Product(4, "Headphones", "Sony WH-1000XM5 Noise Cancelling", 2));
+    productCatalog.emplace_back(Product(5, "Smart Watch", "Apple Watch Series 8", 4));
+    productCatalog.emplace_back(Product(6, "Gaming Console", "PlayStation 5 Digital Edition", 5));
+    productCatalog.emplace_back(Product(7, "E-reader", "Kindle Paperwhite (Latest Gen)", 1));
+    productCatalog.emplace_back(Product(8, "Coffee Maker", "Breville Barista Express Espresso Machine", 3));
+    productCatalog.emplace_back(Product(9, "Book", "'The Midnight Library' by Matt Haig", 2));
+    productCatalog.emplace_back(Product(10, "Robot Vacuum", "iRobot Roomba j7+ Self-Emptying", 4));
+    
+    Inventory initialInventory;
+    initialInventory.addStock(1, 2500);
+    initialInventory.addStock(2, 3000);
+    initialInventory.addStock(3, 4750);
+    initialInventory.addStock(4, 3800);
+    initialInventory.addStock(5, 5100);
+    initialInventory.addStock(6, 2050);
+    initialInventory.addStock(7, 7500);
+    initialInventory.addStock(8, 1900);
+    initialInventory.addStock(9, 12000);
+    initialInventory.addStock(10, 4500);
+
+    Warehouse *warehouseA = new Warehouse(8.571765, -71.179717, 25, 3, initialInventory, this);
+    Warehouse *warehouseB = new Warehouse(8.5962673, -71.1518601, 15, 2, initialInventory, this);
+
+    warehouses.append(warehouseA);
+    warehouses.append(warehouseB);
 
     simulationClock = new QTimer(this);
     QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
     simulationClock->setInterval(simulationClockInterval);
 
-    for (int i = 0; i < 75; ++i)
+    for (int i = 0; i < 150; ++i)
     {
         generateOrder();
     }
@@ -194,6 +209,7 @@ void Simulation::simulationTick()
     }
     
     simulationTime++;
+    simulationStats.print(std::cout);
 
     emit trucksChanged();
     emit ordersChanged();

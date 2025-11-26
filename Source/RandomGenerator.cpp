@@ -2,8 +2,8 @@
 
 RandomGenerator::RandomGenerator()
     : gen(rd()),
-      latDist(8.56837, 8.61000),
-      lonDist(-71.16609, -71.12145),
+      latDist(8.50837, 8.61000),
+      lonDist(-71.20809, -71.12145),
       numProductsDist(1.5),
       quantityDist(0.7),
       orderIntervalDist(0.1)

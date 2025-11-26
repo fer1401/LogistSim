@@ -176,6 +176,7 @@ struct Route
 std::pair<int, float> Warehouse::shipOrders(CityGraph &city)
 {
     auto routes = planTruckRoutes(city);
+    readyToShipOrders.clear();
     for (const auto &route : routes)
     {
         truckRoutes.push(route);
