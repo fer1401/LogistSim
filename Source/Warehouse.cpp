@@ -9,7 +9,7 @@ Warehouse::Warehouse(double latitude, double longitude, int totalEmployees, int 
     : QObject{parent}, m_coordinate(latitude, longitude), totalEmployees(totalEmployees), busyEmployees(0), inventory(initialInventory)
 {
     for (int i = 0; i < numTrucks; ++i) {
-        dockedTrucks.append(new Truck(i + 1, m_coordinate, this));
+        dockedTrucks.append(new Truck(i + 1, m_coordinate, "Purple", this));
     }
 }
 

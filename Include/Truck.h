@@ -12,9 +12,10 @@ class Truck : public QObject
     Q_OBJECT
     Q_PROPERTY(QGeoCoordinate coordinate READ getCoordinate WRITE setCoordinate NOTIFY coordinateChanged FINAL)
     Q_PROPERTY(QGeoRoute visualPath READ getVisualPath WRITE setVisualPath NOTIFY visualPathChanged FINAL)
+    Q_PROPERTY(QString color READ getColor WRITE setColor NOTIFY colorChanged);
 
 public:
-    explicit Truck(int id, QGeoCoordinate initialCoord, QObject *parent = nullptr);
+    explicit Truck(int id, QGeoCoordinate initialCoord, QString truckColor, QObject *parent = nullptr);
 
     QGeoCoordinate getCoordinate();
     QGeoRoute getVisualPath();
@@ -27,6 +28,9 @@ public:
     void assignRoute(const Designar::Path<CityGraph> &newRoute);
     void clearRoute();
     void updateRoutePosition();
+    void setColor(QString truckColor);
+
+    QString getColor();
 
     // Función que la simulación en C++ llamará para mover el camión
     Q_INVOKABLE void updatePosition(double longitude, double latitude);
@@ -39,6 +43,7 @@ signals:
     // 2. Señal emitida cada vez que la posición cambie.
     void coordinateChanged();
     void visualPathChanged();
+    void colorChanged();
 
 private:
     QGeoCoordinate m_coordinate;
@@ -47,6 +52,7 @@ private:
     Designar::DynArray<MapPoint> assignedRoute;
     Designar::nat_t routePosition;
     QList<QGeoCoordinate> visualPath;
+    QString color;
 };
 
 #endif // TRUCK_H
