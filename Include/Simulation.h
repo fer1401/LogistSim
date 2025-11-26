@@ -59,6 +59,7 @@ private:
 
     Stats simulationStats;
     int simulationTime = 0;
+    int nextOrderTime = 0;
 };
 
 #endif // SIMULATION_H

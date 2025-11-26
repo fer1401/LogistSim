@@ -31,6 +31,8 @@ Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
     {
         generateOrder();
     }
+    assignOrdersToWarehouses();
+    shipOrders();
 
     emit warehousesChanged();
 }
@@ -50,7 +52,7 @@ void Simulation::generateOrder()
     int numberOfProducts = rng.randomNumProducts();
     for (int i = 0; i < numberOfProducts; ++i)
     {
-        int productIndex = rng.selectProduct(static_cast<int>(productCatalog.size())) - 1; // Adjust for 0-based index
+        int productIndex = rng.selectProduct(productCatalog) + 1; // Adjust for 0-based index
         int qty = rng.randomQuantity() + 1; // preserve previous +1 behavior
         newOrder.addProduct(productCatalog[productIndex], qty);
     }
@@ -161,8 +163,6 @@ QVariantList Simulation::getVisualOrders()
 
 void Simulation::simulationTick()
 {
-    simulationTime++;
-
     for (const auto &warehouse : warehouses)
     {
         for (const auto &truck : warehouse->getDockedTrucks())
@@ -181,16 +181,19 @@ void Simulation::simulationTick()
         warehouse->fullfillAllPossibleOrders();
     }
 
-    if(simulationTime % 10 == 0) // Generate a new order
+    if(simulationTime == nextOrderTime) // Generate a new order
     {
         generateOrder();
         assignOrdersToWarehouses();
+        nextOrderTime += rng.randomOrderInterval();
     }
 
     if(simulationTime % 300 == 0) // Deliver orders
     {
         shipOrders();
     }
+    
+    simulationTime++;
 
     emit trucksChanged();
     emit ordersChanged();

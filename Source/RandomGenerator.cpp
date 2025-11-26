@@ -5,7 +5,8 @@ RandomGenerator::RandomGenerator()
       latDist(8.56837, 8.61000),
       lonDist(-71.16609, -71.12145),
       numProductsDist(1.5),
-      quantityDist(0.7)
+      quantityDist(0.7),
+      orderIntervalDist(0.1)
 {
 }
 
@@ -27,6 +28,11 @@ int RandomGenerator::randomNumProducts()
 int RandomGenerator::randomQuantity()
 {
     return quantityDist(gen);
+}
+
+float RandomGenerator::randomOrderInterval()
+{
+    return orderIntervalDist(gen);
 }
 
 int RandomGenerator::selectProduct(std::vector<Product> catalog)

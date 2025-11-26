@@ -15,6 +15,7 @@ public:
     int randomNumProducts();
     int randomQuantity();
     int selectProduct(std::vector<Product> catalog);
+    float randomOrderInterval();
 
 private:
     std::random_device rd;  // seed source for the RNG
@@ -24,6 +25,7 @@ private:
     std::uniform_real_distribution<double> lonDist;
     std::poisson_distribution<int> numProductsDist;
     std::geometric_distribution<int> quantityDist;
+    std::geometric_distribution<int> orderIntervalDist;
 };
 
 #endif // RANDOMGENERATOR_H
