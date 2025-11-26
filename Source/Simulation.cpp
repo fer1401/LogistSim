@@ -19,9 +19,9 @@ Simulation::Simulation(QObject *parent) : QObject{parent}, city{City()}
     warehouses.append(warehouseB);
     
     // Initialize products
-    productCatalog.emplace_back(Product(1, "Laptop", "HP Spectre x360"));
-    productCatalog.emplace_back(Product(2, "Smartphone", "Samsung Galaxy S21"));
-    productCatalog.emplace_back(Product(3, "Tablet", "iPad Pro"));
+    productCatalog.emplace_back(Product(1, "Laptop", "HP Spectre x360", 1));
+    productCatalog.emplace_back(Product(2, "Smartphone", "Samsung Galaxy S21", 3));
+    productCatalog.emplace_back(Product(3, "Tablet", "iPad Pro", 5));
 
     simulationClock = new QTimer(this);
     QTimer::connect(simulationClock, SIGNAL(timeout()), this, SLOT(simulationTick()));
@@ -54,14 +54,14 @@ void Simulation::generateOrder()
                    lonDist(gen));
     
     std::uniform_int_distribution<> productSelect(1, productCatalog.size());
-    std::uniform_int_distribution<> numProducts(1, 2);
-    std::uniform_int_distribution<> quantity(1, 10);
+    std::poisson_distribution<> numProducts(1.5);
+    std::geometric_distribution<> quantity(0.7);
     
     int numberOfProducts = numProducts(gen);
     for (int i = 0; i < numberOfProducts; ++i)
     {
         int productIndex = productSelect(gen) - 1; // Adjust for 0-based index
-        int qty = quantity(gen);
+        int qty = quantity(gen) + 1;;
         newOrder.addProduct(productCatalog[productIndex], qty);
     }
 
